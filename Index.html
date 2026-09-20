@@ -3,27 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard NFL 2026/2027</title>
+    <title>NFL Betting Analytics 2026/2027</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen pb-12">
 
-    <!-- Header & Selector de Equipo -->
+    <!-- Header & Selector -->
     <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-10 shadow-lg">
         <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
             <h1 class="text-xl font-bold text-blue-400 flex items-center gap-2">
-                <i class="fa-solid fa-football"></i> Estadísticas NFL 2026/2027
+                <i class="fa-solid fa-football"></i> NFL Betting Analytics 2026/2027
             </h1>
             
-            <!-- SELECTOR DE EQUIPO -->
             <div class="flex items-center gap-2 w-full sm:w-auto">
-                <label for="team-select" class="text-sm font-semibold text-slate-300 whitespace-nowrap">Equipo:</label>
+                <label for="team-select" class="text-sm font-semibold text-slate-300 whitespace-nowrap">Ver Equipo:</label>
                 <select id="team-select" onchange="cambiarEquipo()" class="bg-slate-900 border border-blue-500/50 text-blue-300 font-bold rounded-lg px-3 py-2 w-full sm:w-64 focus:outline-none focus:border-blue-400">
-                    <option value="DAL">Dallas Cowboys</option>
-                    <option value="PHI">Philadelphia Eagles</option>
-                    <option value="KC">Kansas City Chiefs</option>
-                    <option value="SF">San Francisco 49ers</option>
                 </select>
             </div>
         </div>
@@ -36,11 +31,9 @@
             <h2 id="team-title" class="text-lg font-semibold text-slate-300 border-l-4 border-blue-500 pl-3">
                 Estadísticas Colectivas por Semana
             </h2>
-            <p class="text-sm text-slate-400">Haz clic en cualquier métrica para desglosar por semana (S1, S2, S3...):</p>
+            <p class="text-sm text-slate-400">Haz clic en cualquier métrica para ver el desglose semana a semana (S1, S2):</p>
             
-            <div id="accordion-container" class="space-y-3">
-                <!-- Inyectado dinámicamente -->
-            </div>
+            <div id="accordion-container" class="space-y-3"></div>
         </section>
 
         <!-- SECCIÓN 2: ROSTER Y ESTADÍSTICAS INDIVIDUALES -->
@@ -48,9 +41,9 @@
             <h2 class="text-lg font-semibold text-slate-300 border-l-4 border-emerald-500 pl-3">
                 Jugadores Principales (Temporada 2026/2027)
             </h2>
-            <p class="text-sm text-slate-400">Haz clic en un jugador para ver su rendimiento partido por partido vs. rivales:</p>
+            <p class="text-sm text-slate-400">Haz clic en un jugador para desplegar su rendimiento partido por partido vs. rivales:</p>
 
-            <!-- QB -->
+            <!-- QB Titular -->
             <div class="space-y-2">
                 <h3 class="text-md font-medium text-amber-400 flex items-center gap-2">
                     <i class="fa-solid fa-user-shield"></i> Quarterback Titular (QB)
@@ -75,26 +68,37 @@
             </div>
         </section>
 
-        <!-- SECCIÓN 3: CALCULADORA AUTOMÁTICA DE PROYECCIONES -->
+        <!-- SECCIÓN 3: CALCULADORA AUTOMÁTICA POR ENFRENTAMIENTO -->
         <section class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl space-y-6">
             <div class="border-b border-slate-700 pb-3 flex justify-between items-center flex-wrap gap-2">
                 <div>
                     <h2 class="text-lg font-semibold text-blue-400 flex items-center gap-2">
-                        <i class="fa-solid fa-calculator"></i> Calculadora de Proyección Automática
+                        <i class="fa-solid fa-calculator"></i> Calculadora Automática de Enfrentamiento
                     </h2>
-                    <p class="text-sm text-slate-400">Calcula automáticamente basándose en los promedios del equipo seleccionado.</p>
+                    <p class="text-sm text-slate-400">Selecciona el partido y el sistema calculará automáticamente todo basándose en las 2 semanas.</p>
                 </div>
                 <span class="bg-blue-900/50 text-blue-300 text-xs px-3 py-1 rounded-full border border-blue-700 font-mono">100% Automática</span>
             </div>
 
-            <!-- Resultados Automáticos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">EQUIPO LOCAL 🏠</label>
+                    <select id="calcHomeSelect" onchange="calcularEnfrentamiento()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm text-white focus:outline-none"></select>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">EQUIPO VISITANTE ✈️</label>
+                    <select id="calcAwaySelect" onchange="calcularEnfrentamiento()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm text-white focus:outline-none"></select>
+                </div>
+            </div>
+
+            <!-- Resultados Automáticos de la Calculadora -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 text-center">
-                    <span class="block text-xs font-medium text-slate-400 mb-1">Intentos Pase Esp. / Juego</span>
+                    <span class="block text-xs font-medium text-slate-400 mb-1">Intentos Pase Esp. QB (Local)</span>
                     <span id="calc-pass-att" class="text-2xl font-bold text-blue-400">0</span>
                 </div>
                 <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 text-center">
-                    <span class="block text-xs font-medium text-slate-400 mb-1">Intentos Tierra Esp. / Juego</span>
+                    <span class="block text-xs font-medium text-slate-400 mb-1">Intentos Carrera Esp. (Local)</span>
                     <span id="calc-rush-att" class="text-2xl font-bold text-emerald-400">0</span>
                 </div>
                 <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 text-center">
@@ -102,8 +106,8 @@
                     <span id="calc-total-yds" class="text-2xl font-bold text-amber-400">0</span>
                 </div>
                 <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 text-center">
-                    <span class="block text-xs font-medium text-slate-400 mb-1">Puntos Esperados</span>
-                    <span id="calc-pts" class="text-2xl font-bold text-purple-400">0</span>
+                    <span class="block text-xs font-medium text-slate-400 mb-1">Marcador Proyectado</span>
+                    <span id="calc-pts" class="text-lg font-bold text-purple-400">--</span>
                 </div>
             </div>
         </section>
@@ -120,96 +124,162 @@
     </div>
 
     <script>
-        // BASE DE DATOS DE EQUIPOS 2026/2027
-        const teamsData = {
-            "DAL": {
-                name: "Dallas Cowboys",
-                teamStats: [
-                    { title: "Puntos Anotados", weeks: [{ week: "S1", vs: "vs NYG", value: 27 }, { week: "S2", vs: "@ PHI", value: 21 }, { week: "S3", vs: "vs WAS", value: 31 }, { week: "S4", vs: "@ SF", value: 24 }] },
-                    { title: "Puntos en Contra", weeks: [{ week: "S1", vs: "vs NYG", value: 14 }, { week: "S2", vs: "@ PHI", value: 24 }, { week: "S3", vs: "vs WAS", value: 17 }, { week: "S4", vs: "@ SF", value: 28 }] },
-                    { title: "Intentos de Pase", weeks: [{ week: "S1", vs: "vs NYG", value: 35 }, { week: "S2", vs: "@ PHI", value: 38 }, { week: "S3", vs: "vs WAS", value: 30 }, { week: "S4", vs: "@ SF", value: 33 }] },
-                    { title: "Intentos de Carrera", weeks: [{ week: "S1", vs: "vs NYG", value: 25 }, { week: "S2", vs: "@ PHI", value: 20 }, { week: "S3", vs: "vs WAS", value: 28 }, { week: "S4", vs: "@ SF", value: 22 }] },
-                    { title: "Yardas por Pase", weeks: [{ week: "S1", vs: "vs NYG", value: 7.8 }, { week: "S2", vs: "@ PHI", value: 6.5 }, { week: "S3", vs: "vs WAS", value: 8.9 }, { week: "S4", vs: "@ SF", value: 7.2 }] },
-                    { title: "Yardas Terrestres", weeks: [{ week: "S1", vs: "vs NYG", value: 110 }, { week: "S2", vs: "@ PHI", value: 85 }, { week: "S3", vs: "vs WAS", value: 135 }, { week: "S4", vs: "@ SF", value: 95 }] },
-                    { title: "TD por Pase", weeks: [{ week: "S1", vs: "vs NYG", value: 2 }, { week: "S2", vs: "@ PHI", value: 1 }, { week: "S3", vs: "vs WAS", value: 3 }, { week: "S4", vs: "@ SF", value: 2 }] },
-                    { title: "TD por Tierra", weeks: [{ week: "S1", vs: "vs NYG", value: 1 }, { week: "S2", vs: "@ PHI", value: 1 }, { week: "S3", vs: "vs WAS", value: 1 }, { week: "S4", vs: "@ SF", value: 0 }] }
-                ],
+        // BASE DE DATOS COMPLETA - TEMPORADA 2026/2027
+        const nflTeamsData = {
+            "KC": {
+                name: "Kansas City Chiefs",
+                stats: {
+                    pa: [27, 26], pc: [20, 15], attPass: [28, 25], attRush: [29, 29],
+                    ypa: [10.4, 6.0], rushYds: [149, 149], passTd: [1, 2], rushTd: [2, 1],
+                    vs: ["vs BAL", "vs CIN"]
+                },
                 players: {
-                    qb: [{ name: "Dak Prescott", number: "#4", pos: "QB", statsSummary: "1,020 Yds | 8 TD", weekly: [{ week: "S1", vs: "vs NYG", stats: "273 Yds, 2 TD" }, { week: "S2", vs: "@ PHI", stats: "247 Yds, 1 TD" }, { week: "S3", vs: "vs WAS", stats: "267 Yds, 3 TD" }, { week: "S4", vs: "@ SF", stats: "233 Yds, 2 TD" }] }],
+                    qb: [{ name: "Patrick Mahomes", number: "#15", pos: "QB", statsSummary: "442 Yds Pase | 3 TD", weekly: [{ week: "S1", vs: "vs BAL", stats: "291 Yds, 1 TD, 1 INT" }, { week: "S2", vs: "vs CIN", stats: "151 Yds, 2 TD, 2 INT" }] }],
                     rb: [
-                        { name: "Rico Dowdle", number: "#23", pos: "RB1", statsSummary: "280 Yds | 2 TD", weekly: [{ week: "S1", vs: "vs NYG", stats: "75 Yds, 1 TD" }, { week: "S2", vs: "@ PHI", stats: "50 Yds, 0 TD" }, { week: "S3", vs: "vs WAS", stats: "90 Yds, 1 TD" }, { week: "S4", vs: "@ SF", stats: "65 Yds, 0 TD" }] },
-                        { name: "Ezekiel Elliott", number: "#15", pos: "RB2", statsSummary: "110 Yds | 1 TD", weekly: [{ week: "S1", vs: "vs NYG", stats: "25 Yds, 0 TD" }, { week: "S2", vs: "@ PHI", stats: "30 Yds, 1 TD" }, { week: "S3", vs: "vs WAS", stats: "35 Yds, 0 TD" }, { week: "S4", vs: "@ SF", stats: "20 Yds, 0 TD" }] },
-                        { name: "Deuce Vaughn", number: "#22", pos: "RB3", statsSummary: "35 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs NYG", stats: "10 Yds" }, { week: "S2", vs: "@ PHI", stats: "5 Yds" }, { week: "S3", vs: "vs WAS", stats: "10 Yds" }, { week: "S4", vs: "@ SF", stats: "10 Yds" }] },
-                        { name: "Hunter Luepke", number: "#40", pos: "RB4", statsSummary: "18 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs NYG", stats: "0 Yds" }, { week: "S2", vs: "@ PHI", stats: "0 Yds" }, { week: "S3", vs: "vs WAS", stats: "18 Yds" }, { week: "S4", vs: "@ SF", stats: "0 Yds" }] },
-                        { name: "Royce Freeman", number: "#28", pos: "RB5", statsSummary: "10 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs NYG", stats: "0 Yds" }, { week: "S2", vs: "@ PHI", stats: "0 Yds" }, { week: "S3", vs: "vs WAS", stats: "0 Yds" }, { week: "S4", vs: "@ SF", stats: "10 Yds" }] }
+                        { name: "Isiah Pacheco", number: "#10", pos: "RB1", statsSummary: "135 Yds | 1 TD", weekly: [{ week: "S1", vs: "vs BAL", stats: "45 Yds, 1 TD" }, { week: "S2", vs: "vs CIN", stats: "90 Yds, 0 TD" }] },
+                        { name: "Carson Steele", number: "#29", pos: "RB2", statsSummary: "27 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs BAL", stats: "3 Yds" }, { week: "S2", vs: "vs CIN", stats: "24 Yds" }] },
+                        { name: "Samaje Perine", number: "#22", pos: "RB3", statsSummary: "10 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs BAL", stats: "0 Yds" }, { week: "S2", vs: "vs CIN", stats: "10 Yds" }] },
+                        { name: "Clyde Edwards-Helaire", number: "#25", pos: "RB4", statsSummary: "0 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs BAL", stats: "0 Yds" }, { week: "S2", vs: "vs CIN", stats: "0 Yds" }] },
+                        { name: "Emani Bailey", number: "#30", pos: "RB5", statsSummary: "0 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs BAL", stats: "0 Yds" }, { week: "S2", vs: "vs CIN", stats: "0 Yds" }] }
                     ],
                     wr: [
-                        { name: "CeeDee Lamb", number: "#88", pos: "WR1", statsSummary: "410 Yds | 4 TD", weekly: [{ week: "S1", vs: "vs NYG", stats: "110 Yds, 1 TD" }, { week: "S2", vs: "@ PHI", stats: "85 Yds, 0 TD" }, { week: "S3", vs: "vs WAS", stats: "120 Yds, 2 TD" }, { week: "S4", vs: "@ SF", stats: "95 Yds, 1 TD" }] },
-                        { name: "Brandin Cooks", number: "#3", pos: "WR2", statsSummary: "220 Yds | 2 TD", weekly: [{ week: "S1", vs: "vs NYG", stats: "55 Yds, 1 TD" }, { week: "S2", vs: "@ PHI", stats: "60 Yds, 0 TD" }, { week: "S3", vs: "vs WAS", stats: "65 Yds, 1 TD" }, { week: "S4", vs: "@ SF", stats: "40 Yds, 0 TD" }] },
-                        { name: "Jake Ferguson", number: "#87", pos: "TE1", statsSummary: "180 Yds | 1 TD", weekly: [{ week: "S1", vs: "vs NYG", stats: "40 Yds, 0 TD" }, { week: "S2", vs: "@ PHI", stats: "50 Yds, 1 TD" }, { week: "S3", vs: "vs WAS", stats: "45 Yds, 0 TD" }, { week: "S4", vs: "@ SF", stats: "45 Yds, 0 TD" }] },
-                        { name: "Jalen Tolbert", number: "#1", pos: "WR3", statsSummary: "115 Yds | 1 TD", weekly: [{ week: "S1", vs: "vs NYG", stats: "30 Yds, 0 TD" }, { week: "S2", vs: "@ PHI", stats: "25 Yds, 0 TD" }, { week: "S3", vs: "vs WAS", stats: "20 Yds, 0 TD" }, { week: "S4", vs: "@ SF", stats: "40 Yds, 1 TD" }] },
-                        { name: "KaVontae Turpin", number: "#9", pos: "WR4", statsSummary: "75 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs NYG", stats: "38 Yds" }, { week: "S2", vs: "@ PHI", stats: "27 Yds" }, { week: "S3", vs: "vs WAS", stats: "18 Yds" }, { week: "S4", vs: "@ SF", stats: "13 Yds" }] }
+                        { name: "Xavier Worthy", number: "#1", pos: "WR1", statsSummary: "115 Yds | 2 TD", weekly: [{ week: "S1", vs: "vs BAL", stats: "68 Yds Rec (1 TD), 21 Yds Tierra (1 TD)" }, { week: "S2", vs: "vs CIN", stats: "26 Yds Rec" }] },
+                        { name: "Rashee Rice", number: "#4", pos: "WR2", statsSummary: "178 Yds | 1 TD", weekly: [{ week: "S1", vs: "vs BAL", stats: "103 Yds" }, { week: "S2", vs: "vs CIN", stats: "75 Yds, 1 TD" }] },
+                        { name: "Travis Kelce", number: "#87", pos: "TE1", statsSummary: "39 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs BAL", stats: "34 Yds" }, { week: "S2", vs: "vs CIN", stats: "5 Yds" }] },
+                        { name: "Justin Watson", number: "#84", pos: "WR3", statsSummary: "22 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs BAL", stats: "0 Yds" }, { week: "S2", vs: "vs CIN", stats: "22 Yds" }] },
+                        { name: "JuJu Smith-Schuster", number: "#9", pos: "WR4", statsSummary: "14 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs BAL", stats: "0 Yds" }, { week: "S2", vs: "vs CIN", stats: "14 Yds" }] }
+                    ]
+                }
+            },
+            "SF": {
+                name: "San Francisco 49ers",
+                stats: {
+                    pa: [32, 17], pc: [19, 23], attPass: [29, 36], attRush: [38, 27],
+                    ypa: [8.0, 8.8], rushYds: [180, 102], passTd: [1, 1], rushTd: [2, 1],
+                    vs: ["vs NYJ", "@ MIN"]
+                },
+                players: {
+                    qb: [{ name: "Brock Purdy", number: "#13", pos: "QB", statsSummary: "550 Yds Pase | 2 TD", weekly: [{ week: "S1", vs: "vs NYJ", stats: "231 Yds, 0 TD" }, { week: "S2", vs: "@ MIN", stats: "319 Yds, 1 TD, 1 INT" }] }],
+                    rb: [
+                        { name: "Jordan Mason", number: "#24", pos: "RB1", statsSummary: "247 Yds | 2 TD", weekly: [{ week: "S1", vs: "vs NYJ", stats: "147 Yds, 1 TD" }, { week: "S2", vs: "@ MIN", stats: "100 Yds, 1 TD" }] },
+                        { name: "Deebo Samuel (Hybrid)", number: "#19", pos: "RB/WR", statsSummary: "37 Yds Tierra | 1 TD", weekly: [{ week: "S1", vs: "vs NYJ", stats: "23 Yds Tierra, 1 TD" }, { week: "S2", vs: "@ MIN", stats: "14 Yds Tierra" }] },
+                        { name: "Isaac Guerendo", number: "#49", pos: "RB2", statsSummary: "19 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs NYJ", stats: "0 Yds" }, { week: "S2", vs: "@ MIN", stats: "19 Yds" }] },
+                        { name: "Patrick Taylor", number: "#21", pos: "RB3", statsSummary: "4 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs NYJ", stats: "4 Yds" }, { week: "S2", vs: "@ MIN", stats: "0 Yds" }] },
+                        { name: "Christian McCaffrey", number: "#23", pos: "RB (Lesión)", statsSummary: "0 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs NYJ", stats: "Inactivo (IR)" }, { week: "S2", vs: "@ MIN", stats: "Inactivo (IR)" }] }
+                    ],
+                    wr: [
+                        { name: "Deebo Samuel", number: "#19", pos: "WR1", statsSummary: "164 Yds Rec | 0 TD", weekly: [{ week: "S1", vs: "vs NYJ", stats: "54 Yds" }, { week: "S2", vs: "@ MIN", stats: "110 Yds" }] },
+                        { name: "George Kittle", number: "#85", pos: "TE1", statsSummary: "116 Yds | 1 TD", weekly: [{ week: "S1", vs: "vs NYJ", stats: "40 Yds" }, { week: "S2", vs: "@ MIN", stats: "76 Yds, 1 TD" }] },
+                        { name: "Jauan Jennings", number: "#15", pos: "WR2", statsSummary: "101 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs NYJ", stats: "64 Yds" }, { week: "S2", vs: "@ MIN", stats: "37 Yds" }] },
+                        { name: "Brandon Aiyuk", number: "#11", pos: "WR3", statsSummary: "71 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs NYJ", stats: "28 Yds" }, { week: "S2", vs: "@ MIN", stats: "43 Yds" }] },
+                        { name: "Kyle Juszczyk", number: "#44", pos: "FB", statsSummary: "26 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs NYJ", stats: "26 Yds" }, { week: "S2", vs: "@ MIN", stats: "0 Yds" }] }
+                    ]
+                }
+            },
+            "DAL": {
+                name: "Dallas Cowboys",
+                stats: {
+                    pa: [33, 19], pc: [17, 44], attPass: [32, 39], attRush: [25, 21],
+                    ypa: [5.6, 7.5], rushYds: [102, 68], passTd: [1, 1], rushTd: [1, 0],
+                    vs: ["@ CLE", "vs NO"]
+                },
+                players: {
+                    qb: [{ name: "Dak Prescott", number: "#4", pos: "QB", statsSummary: "472 Yds Pase | 2 TD", weekly: [{ week: "S1", vs: "@ CLE", stats: "179 Yds, 1 TD" }, { week: "S2", vs: "vs NO", stats: "293 Yds, 1 TD, 2 INT" }] }],
+                    rb: [
+                        { name: "Rico Dowdle", number: "#23", pos: "RB1", statsSummary: "56 Yds | 0 TD", weekly: [{ week: "S1", vs: "@ CLE", stats: "26 Yds" }, { week: "S2", vs: "vs NO", stats: "30 Yds" }] },
+                        { name: "Ezekiel Elliott", number: "#15", pos: "RB2", statsSummary: "56 Yds | 1 TD", weekly: [{ week: "S1", vs: "@ CLE", stats: "40 Yds, 1 TD" }, { week: "S2", vs: "vs NO", stats: "16 Yds" }] },
+                        { name: "Deuce Vaughn", number: "#22", pos: "RB3", statsSummary: "15 Yds | 0 TD", weekly: [{ week: "S1", vs: "@ CLE", stats: "4 Yds" }, { week: "S2", vs: "vs NO", stats: "11 Yds" }] },
+                        { name: "Hunter Luepke", number: "#40", pos: "FB", statsSummary: "12 Yds | 0 TD", weekly: [{ week: "S1", vs: "@ CLE", stats: "0 Yds" }, { week: "S2", vs: "vs NO", stats: "12 Yds" }] },
+                        { name: "CeeDee Lamb (Acarreo)", number: "#88", pos: "WR/RB", statsSummary: "25 Yds | 0 TD", weekly: [{ week: "S1", vs: "@ CLE", stats: "25 Yds" }, { week: "S2", vs: "vs NO", stats: "0 Yds" }] }
+                    ],
+                    wr: [
+                        { name: "CeeDee Lamb", number: "#88", pos: "WR1", statsSummary: "151 Yds | 1 TD", weekly: [{ week: "S1", vs: "@ CLE", stats: "61 Yds" }, { week: "S2", vs: "vs NO", stats: "90 Yds, 1 TD" }] },
+                        { name: "Jake Ferguson", number: "#87", pos: "TE1", statsSummary: "15 Yds | 0 TD", weekly: [{ week: "S1", vs: "@ CLE", stats: "15 Yds" }, { week: "S2", vs: "vs NO", stats: "Inactivo" }] },
+                        { name: "Brandin Cooks", number: "#3", pos: "WR2", statsSummary: "59 Yds | 1 TD", weekly: [{ week: "S1", vs: "@ CLE", stats: "40 Yds, 1 TD" }, { week: "S2", vs: "vs NO", stats: "19 Yds" }] },
+                        { name: "Jalen Tolbert", number: "#1", pos: "WR3", statsSummary: "94 Yds | 0 TD", weekly: [{ week: "S1", vs: "@ CLE", stats: "12 Yds" }, { week: "S2", vs: "vs NO", stats: "82 Yds" }] },
+                        { name: "KaVontae Turpin", number: "#9", pos: "WR4", statsSummary: "34 Yds | 0 TD", weekly: [{ week: "S1", vs: "@ CLE", stats: "0 Yds" }, { week: "S2", vs: "vs NO", stats: "34 Yds" }] }
                     ]
                 }
             },
             "PHI": {
                 name: "Philadelphia Eagles",
-                teamStats: [
-                    { title: "Puntos Anotados", weeks: [{ week: "S1", vs: "vs GB", value: 34 }, { week: "S2", vs: "vs DAL", value: 24 }, { week: "S3", vs: "@ NO", value: 15 }, { week: "S4", vs: "@ TB", value: 16 }] },
-                    { title: "Puntos en Contra", weeks: [{ week: "S1", vs: "vs GB", value: 29 }, { week: "S2", vs: "vs DAL", value: 21 }, { week: "S3", vs: "@ NO", value: 12 }, { week: "S4", vs: "@ TB", value: 33 }] },
-                    { title: "Intentos de Pase", weeks: [{ week: "S1", vs: "vs GB", value: 34 }, { week: "S2", vs: "vs DAL", value: 30 }, { week: "S3", vs: "@ NO", value: 38 }, { week: "S4", vs: "@ TB", value: 32 }] },
-                    { title: "Intentos de Carrera", weeks: [{ week: "S1", vs: "vs GB", value: 38 }, { week: "S2", vs: "vs DAL", value: 32 }, { week: "S3", vs: "@ NO", value: 25 }, { week: "S4", vs: "@ TB", value: 22 }] },
-                    { title: "Yardas por Pase", weeks: [{ week: "S1", vs: "vs GB", value: 8.2 }, { week: "S2", vs: "vs DAL", value: 7.1 }, { week: "S3", vs: "@ NO", value: 8.1 }, { week: "S4", vs: "@ TB", value: 6.2 }] },
-                    { title: "Yardas Terrestres", weeks: [{ week: "S1", vs: "vs GB", value: 172 }, { week: "S2", vs: "vs DAL", value: 140 }, { week: "S3", vs: "@ NO", value: 115 }, { week: "S4", vs: "@ TB", value: 88 }] },
-                    { title: "TD por Pase", weeks: [{ week: "S1", vs: "vs GB", value: 2 }, { week: "S2", vs: "vs DAL", value: 1 }, { week: "S3", vs: "@ NO", value: 1 }, { week: "S4", vs: "@ TB", value: 1 }] },
-                    { title: "TD por Tierra", weeks: [{ week: "S1", vs: "vs GB", value: 2 }, { week: "S2", vs: "vs DAL", value: 2 }, { week: "S3", vs: "@ NO", value: 0 }, { week: "S4", vs: "@ TB", value: 1 }] }
-                ],
+                stats: {
+                    pa: [34, 21], pc: [29, 22], attPass: [34, 30], attRush: [38, 27],
+                    ypa: [8.2, 6.1], rushYds: [172, 116], passTd: [2, 1], rushTd: [2, 1],
+                    vs: ["vs GB", "vs ATL"]
+                },
                 players: {
-                    qb: [{ name: "Jalen Hurts", number: "#1", pos: "QB", statsSummary: "910 Yds | 5 TD Pasar | 4 TD Tierra", weekly: [{ week: "S1", vs: "vs GB", stats: "278 Yds, 2 TD Pasar, 1 TD Tierra" }, { week: "S2", vs: "vs DAL", stats: "213 Yds, 1 TD Pasar, 1 TD Tierra" }, { week: "S3", vs: "@ NO", stats: "311 Yds, 1 TD Pasar, 0 TD Tierra" }, { week: "S4", vs: "@ TB", stats: "198 Yds, 1 TD Pasar, 2 TD Tierra" }] }],
+                    qb: [{ name: "Jalen Hurts", number: "#1", pos: "QB", statsSummary: "433 Yds Pase | 3 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "278 Yds, 2 TD, 2 INT" }, { week: "S2", vs: "vs ATL", stats: "155 Yds, 1 TD, 1 INT" }] }],
                     rb: [
-                        { name: "Saquon Barkley", number: "#26", pos: "RB1", statsSummary: "435 Yds | 4 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "109 Yds, 2 TD" }, { week: "S2", vs: "vs DAL", stats: "95 Yds, 1 TD" }, { week: "S3", vs: "@ NO", stats: "147 Yds, 1 TD" }, { week: "S4", vs: "@ TB", stats: "84 Yds, 0 TD" }] },
-                        { name: "Kenneth Gainwell", number: "#14", pos: "RB2", statsSummary: "80 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "22 Yds" }, { week: "S2", vs: "vs DAL", stats: "25 Yds" }, { week: "S3", vs: "@ NO", stats: "18 Yds" }, { week: "S4", vs: "@ TB", stats: "15 Yds" }] },
-                        { name: "Will Shipley", number: "#28", pos: "RB3", statsSummary: "32 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "12 Yds" }, { week: "S2", vs: "vs DAL", stats: "8 Yds" }, { week: "S3", vs: "@ NO", stats: "5 Yds" }, { week: "S4", vs: "@ TB", stats: "7 Yds" }] },
-                        { name: "Lew Nichols", number: "#38", pos: "RB4", statsSummary: "10 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "0 Yds" }, { week: "S2", vs: "vs DAL", stats: "0 Yds" }, { week: "S3", vs: "@ NO", stats: "10 Yds" }, { week: "S4", vs: "@ TB", stats: "0 Yds" }] },
-                        { name: "Kendall Milton", number: "#36", pos: "RB5", statsSummary: "5 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "0 Yds" }, { week: "S2", vs: "vs DAL", stats: "0 Yds" }, { week: "S3", vs: "@ NO", stats: "0 Yds" }, { week: "S4", vs: "@ TB", stats: "5 Yds" }] }
+                        { name: "Saquon Barkley", number: "#26", pos: "RB1", statsSummary: "204 Yds | 3 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "109 Yds, 2 TD" }, { week: "S2", vs: "vs ATL", stats: "95 Yds, 0 TD" }] },
+                        { name: "Jalen Hurts (Carrera)", number: "#1", pos: "QB/RB", statsSummary: "118 Yds | 1 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "33 Yds" }, { week: "S2", vs: "vs ATL", stats: "85 Yds, 1 TD" }] },
+                        { name: "Kenneth Gainwell", number: "#14", pos: "RB2", statsSummary: "8 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "2 Yds" }, { week: "S2", vs: "vs ATL", stats: "6 Yds" }] },
+                        { name: "Will Shipley", number: "#28", pos: "RB3", statsSummary: "15 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "12 Yds" }, { week: "S2", vs: "vs ATL", stats: "3 Yds" }] },
+                        { name: "Lew Nichols", number: "#38", pos: "RB4", statsSummary: "0 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "0 Yds" }, { week: "S2", vs: "vs ATL", stats: "0 Yds" }] }
                     ],
                     wr: [
-                        { name: "A.J. Brown", number: "#11", pos: "WR1", statsSummary: "320 Yds | 3 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "119 Yds, 1 TD" }, { week: "S2", vs: "vs DAL", stats: "85 Yds, 1 TD" }, { week: "S3", vs: "@ NO", stats: "0 Yds (Lesión)" }, { week: "S4", vs: "@ TB", stats: "116 Yds, 1 TD" }] },
-                        { name: "Devonta Smith", number: "#6", pos: "WR2", statsSummary: "285 Yds | 2 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "84 Yds, 0 TD" }, { week: "S2", vs: "vs DAL", stats: "76 Yds, 1 TD" }, { week: "S3", vs: "@ NO", stats: "79 Yds, 1 TD" }, { week: "S4", vs: "@ TB", stats: "46 Yds, 0 TD" }] },
-                        { name: "Dallas Goedert", number: "#88", pos: "TE1", statsSummary: "210 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "31 Yds" }, { week: "S2", vs: "vs DAL", stats: "38 Yds" }, { week: "S3", vs: "@ NO", stats: "102 Yds" }, { week: "S4", vs: "@ TB", stats: "39 Yds" }] },
-                        { name: "Jahan Dotson", number: "#80", pos: "WR3", statsSummary: "95 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "25 Yds" }, { week: "S2", vs: "vs DAL", stats: "18 Yds" }, { week: "S3", vs: "@ NO", stats: "32 Yds" }, { week: "S4", vs: "@ TB", stats: "20 Yds" }] },
-                        { name: "Grant Calcaterra", number: "#81", pos: "TE2", statsSummary: "45 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "12 Yds" }, { week: "S2", vs: "vs DAL", stats: "10 Yds" }, { week: "S3", vs: "@ NO", stats: "8 Yds" }, { week: "S4", vs: "@ TB", stats: "15 Yds" }] }
+                        { name: "A.J. Brown", number: "#11", pos: "WR1", statsSummary: "119 Yds | 1 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "119 Yds, 1 TD" }, { week: "S2", vs: "vs ATL", stats: "Inactivo (Lesión)" }] },
+                        { name: "Devonta Smith", number: "#6", pos: "WR2", statsSummary: "160 Yds | 1 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "84 Yds" }, { week: "S2", vs: "vs ATL", stats: "76 Yds, 1 TD" }] },
+                        { name: "Dallas Goedert", number: "#88", pos: "TE1", statsSummary: "69 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "31 Yds" }, { week: "S2", vs: "vs ATL", stats: "38 Yds" }] },
+                        { name: "Jahan Dotson", number: "#80", pos: "WR3", statsSummary: "35 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "0 Yds" }, { week: "S2", vs: "vs ATL", stats: "35 Yds" }] },
+                        { name: "Grant Calcaterra", number: "#81", pos: "TE2", statsSummary: "19 Yds | 0 TD", weekly: [{ week: "S1", vs: "vs GB", stats: "11 Yds" }, { week: "S2", vs: "vs ATL", stats: "8 Yds" }] }
                     ]
                 }
             }
         };
 
-        let currentTeam = "DAL";
+        let currentTeamKey = "KC";
+
+        function cargarOpcionesEquipos() {
+            const selectTeam = document.getElementById('team-select');
+            const selectHome = document.getElementById('calcHomeSelect');
+            const selectAway = document.getElementById('calcAwaySelect');
+
+            selectTeam.innerHTML = ''; selectHome.innerHTML = ''; selectAway.innerHTML = '';
+
+            Object.keys(nflTeamsData).forEach(key => {
+                const team = nflTeamsData[key];
+                selectTeam.innerHTML += `<option value="${key}">${team.name}</option>`;
+                selectHome.innerHTML += `<option value="${key}">${team.name}</option>`;
+                selectAway.innerHTML += `<option value="${key}" ${key==='SF'?'selected':''}>${team.name}</option>`;
+            });
+        }
 
         function cambiarEquipo() {
-            currentTeam = document.getElementById('team-select').value;
+            currentTeamKey = document.getElementById('team-select').value;
             renderAll();
         }
 
         function renderAll() {
             renderAccordion();
             renderPlayers();
-            calcularProyeccionAutomatica();
+            calcularEnfrentamiento();
         }
 
         function renderAccordion() {
             const container = document.getElementById('accordion-container');
             container.innerHTML = '';
-            const stats = teamsData[currentTeam].teamStats;
+            const t = nflTeamsData[currentTeamKey];
 
-            stats.forEach((item, index) => {
+            const metrics = [
+                { title: "Puntos Anotados", values: t.stats.pa },
+                { title: "Puntos en Contra", values: t.stats.pc },
+                { title: "Intentos de Pase", values: t.stats.attPass },
+                { title: "Intentos de Carrera", values: t.stats.attRush },
+                { title: "Yardas por Pase (Promedio)", values: t.stats.ypa },
+                { title: "Yardas Terrestres", values: t.stats.rushYds },
+                { title: "TD por Pase", values: t.stats.passTd },
+                { title: "TD por Tierra", values: t.stats.rushTd }
+            ];
+
+            metrics.forEach((item, index) => {
                 const accordionItem = document.createElement('div');
                 accordionItem.className = "bg-slate-800 border border-slate-700 rounded-lg overflow-hidden";
 
-                const weeksHtml = item.weeks.map(w => `
+                const weeksHtml = item.values.map((val, wIdx) => `
                     <div class="flex justify-between items-center py-2 px-4 border-b border-slate-700/50 last:border-0 hover:bg-slate-700/30 transition">
-                        <span class="text-sm font-medium text-slate-300">${w.week} <span class="text-xs text-slate-500 ml-1">(${w.vs})</span></span>
-                        <span class="text-sm font-bold text-blue-400">${w.value}</span>
+                        <span class="text-sm font-medium text-slate-300">Semana ${wIdx + 1} <span class="text-xs text-slate-500 ml-1">(${t.stats.vs[wIdx]})</span></span>
+                        <span class="text-sm font-bold text-blue-400">${val}</span>
                     </div>
                 `).join('');
 
@@ -234,7 +304,7 @@
         }
 
         function renderPlayers() {
-            const players = teamsData[currentTeam].players;
+            const players = nflTeamsData[currentTeamKey].players;
             
             const qbContainer = document.getElementById('qb-container');
             qbContainer.innerHTML = '';
@@ -295,32 +365,43 @@
             document.getElementById('player-modal').classList.add('hidden');
         }
 
-        // CALCULADORA AUTOMÁTICA
-        function calcularProyeccionAutomatica() {
-            const stats = teamsData[currentTeam].teamStats;
-            
-            const passAttWeeks = stats.find(s => s.title === "Intentos de Pase").weeks;
-            const rushAttWeeks = stats.find(s => s.title === "Intentos de Carrera").weeks;
-            const ypaWeeks = stats.find(s => s.title === "Yardas por Pase").weeks;
-            const rushYdsWeeks = stats.find(s => s.title === "Yardas Terrestres").weeks;
-            const ptsWeeks = stats.find(s => s.title === "Puntos Anotados").weeks;
+        // CALCULADORA AUTOMÁTICA POR ENFRENTAMIENTO
+        function calcularEnfrentamiento() {
+            const homeKey = document.getElementById('calcHomeSelect').value;
+            const awayKey = document.getElementById('calcAwaySelect').value;
 
-            const avgPassAtt = Math.round(passAttWeeks.reduce((a, b) => a + b.value, 0) / passAttWeeks.length);
-            const avgRushAtt = Math.round(rushAttWeeks.reduce((a, b) => a + b.value, 0) / rushAttWeeks.length);
-            const avgYpa = ypaWeeks.reduce((a, b) => a + b.value, 0) / ypaWeeks.length;
-            const avgRushYds = rushYdsWeeks.reduce((a, b) => a + b.value, 0) / rushYdsWeeks.length;
-            const avgPts = Math.round(ptsWeeks.reduce((a, b) => a + b.value, 0) / ptsWeeks.length);
+            const home = nflTeamsData[homeKey];
+            const away = nflTeamsData[awayKey];
 
-            const projPassYds = avgPassAtt * avgYpa;
-            const totalProjYds = Math.round(projPassYds + avgRushYds);
+            // Promedios de Local
+            const homeAvgPassAtt = (home.stats.attPass.reduce((a,b)=>a+b,0) / home.stats.attPass.length);
+            const homeAvgRushAtt = (home.stats.attRush.reduce((a,b)=>a+b,0) / home.stats.attRush.length);
+            const homeAvgPa = (home.stats.pa.reduce((a,b)=>a+b,0) / home.stats.pa.length);
+            const homeAvgRushYds = (home.stats.rushYds.reduce((a,b)=>a+b,0) / home.stats.rushYds.length);
 
-            document.getElementById('calc-pass-att').innerText = avgPassAtt;
-            document.getElementById('calc-rush-att').innerText = avgRushAtt;
-            document.getElementById('calc-total-yds').innerText = totalProjYds;
-            document.getElementById('calc-pts').innerText = avgPts;
+            // Promedios de Visitante
+            const awayAvgPc = (away.stats.pc.reduce((a,b)=>a+b,0) / away.stats.pc.length);
+            const awayAvgPa = (away.stats.pa.reduce((a,b)=>a+b,0) / away.stats.pa.length);
+
+            // Ajuste por defensa rival
+            const homePassAttProj = Math.round(homeAvgPassAtt * (awayAvgPc / 20));
+            const homeRushAttProj = Math.round(homeAvgRushAtt * (20 / awayAvgPc));
+
+            const expHomePts = Math.round(((homeAvgPa / 20) * (awayAvgPc / 20) * 20) + 1.5);
+            const expAwayPts = Math.round(((awayAvgPa / 20) * (home.stats.pc.reduce((a,b)=>a+b,0)/2 / 20) * 20) - 1.5);
+
+            const totalYdsProj = Math.round((homePassAttProj * 7.2) + homeAvgRushYds);
+
+            document.getElementById('calc-pass-att').innerText = homePassAttProj;
+            document.getElementById('calc-rush-att').innerText = homeRushAttProj;
+            document.getElementById('calc-total-yds').innerText = totalYdsProj;
+            document.getElementById('calc-pts').innerText = `${homeKey} ${expHomePts} - ${expAwayPts} ${awayKey}`;
         }
 
-        document.addEventListener('DOMContentLoaded', renderAll);
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarOpcionesEquipos();
+            renderAll();
+        });
     </script>
 </body>
 </html>

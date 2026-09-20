@@ -1,305 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFL Betting Analytics 2026</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
-        .card-blur { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NFL Betting Analytics 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+    .card-blur { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); }
+  </style>
 </head>
-<body class="gradient-bg text-gray-100 min-h-screen pb-12">
-    <header class="border-b border-gray-800 bg-slate-900/80 sticky top-0 z-50 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-blue-600 rounded-lg">
-                    <i data-lucide="trophy" class="w-6 h-6 text-white"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold text-white tracking-wide">NFL Betting Analytics</h1>
-                    <p class="text-xs text-blue-400 font-medium">Modelo Poisson & Eficiencia Ajustada</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-2 bg-slate-800/80 p-1 rounded-xl border border-gray-700/50">
-                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-blue-600 text-white shadow-lg">Dashboard</button>
-                <button onclick="switchTab('calculator')" id="tab-calculator" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all text-gray-400 hover:text-white">Calculadora Lineas</button>
-                <button onclick="switchTab('players')" id="tab-players" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all text-gray-400 hover:text-white">Jugadores Clave</button>
-            </div>
-
-            <button onclick="syncESPNData()" id="sync-btn" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg transition-all">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sincronizar ESPN
-            </button>
+<body class="gradient-bg text-gray-100 min-h-screen pb-10">
+  <header class="border-b border-gray-800 bg-slate-900/80 sticky top-0 z-50 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-blue-600 rounded-lg"><i data-lucide="trophy" class="w-6 h-6 text-white"></i></div>
+        <div>
+          <h1 class="font-bold text-lg leading-none">NFL Betting Analytics</h1>
+          <p class="text-xs text-gray-400 mt-1">Modelo Poisson & Eficiencia 32 Equipos</p>
         </div>
-    </header>
+      </div>
+    </div>
+  </header>
 
-    <main class="max-w-7xl mx-auto px-4 pt-6">
-        <div id="status-bar" class="hidden mb-6 p-4 rounded-xl border flex items-center justify-between transition-all"></div>
+  <main class="max-w-7xl mx-auto px-4 mt-6">
+    <div class="bg-slate-800/60 p-4 rounded-xl border border-gray-700/50 mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="font-bold text-lg flex items-center gap-2"><i data-lucide="list" class="w-5 h-5 text-blue-400"></i> Tabla General de Equipos (32/32)</h2>
+        <input type="text" id="searchInput" onkeyup="filterTeams()" placeholder="Buscar equipo..." class="bg-slate-900 border border-gray-700 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500">
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm" id="teamsTable">
+          <thead class="bg-slate-900/80 text-gray-400 text-xs uppercase">
+            <tr>
+              <th class="p-3">Equipo</th>
+              <th class="p-3 text-center">JJ</th>
+              <th class="p-3 text-center">Y. Tierra</th>
+              <th class="p-3 text-center">Y. Pase</th>
+              <th class="p-3 text-center">PPG</th>
+              <th class="p-3 text-center">PAG</th>
+            </tr>
+          </thead>
+          <tbody id="teamsBody" class="divide-y divide-gray-700/50">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
 
-        <!-- TAB 1: DASHBOARD -->
-        <section id="view-dashboard" class="space-y-6">
-            <div class="card-blur p-4 rounded-2xl border border-gray-800 flex flex-wrap gap-4 justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <label class="text-sm text-gray-400 font-medium">Ordenar por:</label>
-                    <select id="sort-metric" onchange="renderDashboard()" class="bg-slate-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm font-semibold text-white">
-                        <option value="ppg">Puntos por Juego (PPG)</option>
-                        <option value="opp_ppg">Puntos Recibidos/Juego</option>
-                        <option value="passYpg">Yardas Pase / Juego</option>
-                        <option value="rushYpg">Yardas Tierra / Juego</option>
-                    </select>
-                </div>
-            </div>
+  <script>
+    const nflTeams = [
+      { name: "Arizona Cardinals", code: "ARI", jj: 17, yt: 2150, yp: 3600, ppg: 21.2, pag: 24.5 },
+      { name: "Atlanta Falcons", code: "ATL", jj: 17, yt: 2020, yp: 3850, ppg: 22.8, pag: 21.9 },
+      { name: "Baltimore Ravens", code: "BAL", jj: 17, yt: 2650, yp: 3700, ppg: 28.4, pag: 16.5 },
+      { name: "Buffalo Bills", code: "BUF", jj: 17, yt: 2210, yp: 4100, ppg: 26.5, pag: 18.3 },
+      { name: "Carolina Panthers", code: "CAR", jj: 17, yt: 1780, yp: 3100, ppg: 15.6, pag: 26.8 },
+      { name: "Chicago Bears", code: "CHI", jj: 17, yt: 2300, yp: 3250, ppg: 21.0, pag: 22.3 },
+      { name: "Cincinnati Bengals", code: "CIN", jj: 17, yt: 1850, yp: 4200, ppg: 24.1, pag: 23.0 },
+      { name: "Cleveland Browns", code: "CLE", jj: 17, yt: 2100, yp: 3400, ppg: 21.5, pag: 20.1 },
+      { name: "Dallas Cowboys", code: "DAL", jj: 17, yt: 1950, yp: 4350, ppg: 27.9, pag: 20.2 },
+      { name: "Denver Broncos", code: "DEN", jj: 17, yt: 1820, yp: 3300, ppg: 20.8, pag: 23.4 },
+      { name: "Detroit Lions", code: "DET", jj: 17, yt: 2350, yp: 4400, ppg: 27.1, pag: 23.2 },
+      { name: "Green Bay Packers", code: "GB", jj: 17, yt: 2180, yp: 3900, ppg: 23.8, pag: 20.6 },
+      { name: "Houston Texans", code: "HOU", jj: 17, yt: 1790, yp: 4150, ppg: 22.2, pag: 20.8 },
+      { name: "Indianapolis Colts", code: "IND", jj: 17, yt: 2200, yp: 3650, ppg: 23.3, pag: 24.1 },
+      { name: "Jacksonville Jaguars", code: "JAX", jj: 17, yt: 1830, yp: 3800, ppg: 22.2, pag: 21.8 },
+      { name: "Kansas City Chiefs", code: "KC", jj: 17, yt: 1860, yp: 4250, ppg: 24.6, pag: 17.3 },
+      { name: "Las Vegas Raiders", code: "LV", jj: 17, yt: 1600, yp: 3500, ppg: 19.5, pag: 24.1 },
+      { name: "Los Angeles Chargers", code: "LAC", jj: 17, yt: 1800, yp: 3950, ppg: 20.4, pag: 23.4 },
+      { name: "Los Angeles Rams", code: "LAR", jj: 17, yt: 2050, yp: 4100, ppg: 23.8, pag: 22.2 },
+      { name: "Miami Dolphins", code: "MIA", jj: 17, yt: 2310, yp: 4500, ppg: 29.2, pag: 23.0 },
+      { name: "Minnesota Vikings", code: "MIN", jj: 17, yt: 1550, yp: 4300, ppg: 20.2, pag: 21.3 },
+      { name: "New England Patriots", code: "NE", jj: 17, yt: 1800, yp: 3100, ppg: 13.9, pag: 21.5 },
+      { name: "New Orleans Saints", code: "NO", jj: 17, yt: 1740, yp: 3900, ppg: 23.6, pag: 19.2 },
+      { name: "New York Giants", code: "NYG", jj: 17, yt: 1870, yp: 3000, ppg: 15.6, pag: 23.9 },
+      { name: "New York Jets", code: "NYJ", jj: 17, yt: 1650, yp: 3200, ppg: 15.8, pag: 20.9 },
+      { name: "Philadelphia Eagles", code: "PHI", jj: 17, yt: 2200, yp: 3800, ppg: 25.5, pag: 22.2 },
+      { name: "Pittsburgh Steelers", code: "PIT", jj: 17, yt: 2000, yp: 3180, ppg: 17.9, pag: 19.1 },
+      { name: "San Francisco 49ers", code: "SF", jj: 17, yt: 2390, yp: 4400, ppg: 28.9, pag: 17.5 },
+      { name: "Seattle Seahawks", code: "SEA", jj: 17, yt: 1540, yp: 3900, ppg: 21.4, pag: 23.6 },
+      { name: "Tampa Bay Buccaneers", code: "TB", jj: 17, yt: 1500, yp: 3850, ppg: 20.5, pag: 19.1 },
+      { name: "Tennessee Titans", code: "TEN", jj: 17, yt: 1850, yp: 3200, ppg: 17.9, pag: 21.6 },
+      { name: "Washington Commanders", code: "WAS", jj: 17, yt: 1800, yp: 3750, ppg: 19.4, pag: 30.5 }
+    ];
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="card-blur p-5 rounded-2xl border border-gray-800">
-                    <h3 class="text-base font-bold text-gray-200 mb-4 flex items-center gap-2"><i data-lucide="bar-chart-2" class="w-5 h-5 text-blue-400"></i> Yardas por Aire vs Tierra (YPG)</h3>
-                    <div class="h-64"><canvas id="yardsChart"></canvas></div>
-                </div>
-                <div class="card-blur p-5 rounded-2xl border border-gray-800">
-                    <h3 class="text-base font-bold text-gray-200 mb-4 flex items-center gap-2"><i data-lucide="shield" class="w-5 h-5 text-emerald-400"></i> Puntos Anotados vs Recibidos</h3>
-                    <div class="h-64"><canvas id="pointsChart"></canvas></div>
-                </div>
-            </div>
+    function renderTable(teams) {
+      const tbody = document.getElementById('teamsBody');
+      tbody.innerHTML = '';
+      teams.forEach(t => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-700/30 transition">
+            <td class="p-3 font-semibold">${t.name} <span class="text-xs text-gray-500">(${t.code})</span></td>
+            <td class="p-3 text-center text-gray-300">${t.jj}</td>
+            <td class="p-3 text-center text-gray-300">${t.yt}</td>
+            <td class="p-3 text-center text-gray-300">${t.yp}</td>
+            <td class="p-3 text-center font-bold text-green-400">${t.ppg}</td>
+            <td class="p-3 text-center font-bold text-red-400">${t.pag}</td>
+          </tr>
+        `;
+      });
+    }
 
-            <div class="card-blur rounded-2xl border border-gray-800 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-300">
-                        <thead class="bg-slate-800/80 text-xs uppercase text-gray-400 border-b border-gray-700">
-                            <tr>
-                                <th class="p-4">Equipo</th>
-                                <th class="p-4 text-center">JJ</th>
-                                <th class="p-4 text-right">Y. Tierra</th>
-                                <th class="p-4 text-right">Y. Pase</th>
-                                <th class="p-4 text-right">PPG</th>
-                                <th class="p-4 text-right">Opp PPG</th>
-                                <th class="p-4 text-center">TD Tierra</th>
-                                <th class="p-4 text-center">TD Pase</th>
-                            </tr>
-                        </thead>
-                        <tbody id="teams-table-body" class="divide-y divide-gray-800/50"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+    function filterTeams() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = nflTeams.filter(t => t.name.toLowerCase().includes(q) || t.code.toLowerCase().includes(q));
+      renderTable(filtered);
+    }
 
-        <!-- TAB 2: CALCULADORA -->
-        <section id="view-calculator" class="hidden space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="card-blur p-6 rounded-2xl border border-gray-800 space-y-5">
-                    <h2 class="text-lg font-bold text-white border-b border-gray-800 pb-3">Configurar Partido</h2>
-                    <div>
-                        <label class="block text-xs uppercase text-gray-400 mb-2">Equipo Local</label>
-                        <select id="calc-home" onchange="calculateOdds()" class="w-full bg-slate-800 border border-gray-700 rounded-xl p-3 text-white"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase text-gray-400 mb-2">Equipo Visitante</label>
-                        <select id="calc-away" onchange="calculateOdds()" class="w-full bg-slate-800 border border-gray-700 rounded-xl p-3 text-white"></select>
-                    </div>
-                    <div class="border-t border-gray-800 pt-4 space-y-4">
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Línea de Puntos Totales</label>
-                            <input type="number" id="line-total" value="45.5" step="0.5" oninput="calculateOdds()" class="w-full bg-slate-800 border border-gray-700 rounded-xl p-2.5 text-white">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Spread / Hándicap (Local)</label>
-                            <input type="number" id="line-spread" value="-3.5" step="0.5" oninput="calculateOdds()" class="w-full bg-slate-800 border border-gray-700 rounded-xl p-2.5 text-white">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Cuota / Odds (Ej: 1.90)</label>
-                            <input type="number" id="line-odds" value="1.90" step="0.01" oninput="calculateOdds()" class="w-full bg-slate-800 border border-gray-700 rounded-xl p-2.5 text-white">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="card-blur p-6 rounded-2xl border border-gray-800 grid grid-cols-3 gap-4 text-center">
-                        <div>
-                            <div id="proj-home-name" class="text-xs text-gray-400 font-bold">LOCAL</div>
-                            <div id="proj-home-score" class="text-3xl font-extrabold text-blue-400 mt-1">0.0</div>
-                        </div>
-                        <div class="flex flex-col justify-center items-center">
-                            <span class="text-xs text-gray-400 font-semibold uppercase">Total Proyectado</span>
-                            <span id="proj-total-score" class="text-2xl font-black text-white mt-1">0.0</span>
-                        </div>
-                        <div>
-                            <div id="proj-away-name" class="text-xs text-gray-400 font-bold">VISITANTE</div>
-                            <div id="proj-away-score" class="text-3xl font-extrabold text-emerald-400 mt-1">0.0</div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="card-blur p-6 rounded-2xl border border-gray-800">
-                            <h3 class="text-sm font-bold text-gray-300 uppercase mb-4">Over / Under Totales</h3>
-                            <div class="space-y-3">
-                                <div class="flex justify-between text-sm"><span class="text-gray-400">Probabilidad OVER:</span><span id="prob-over" class="font-bold text-blue-400">0%</span></div>
-                                <div class="flex justify-between text-sm"><span class="text-gray-400">Probabilidad UNDER:</span><span id="prob-under" class="font-bold text-gray-300">0%</span></div>
-                                <div class="flex justify-between text-sm border-t border-gray-800 pt-2"><span class="text-gray-400">EV:</span><span id="ev-total" class="font-bold">0%</span></div>
-                                <div id="badge-total" class="mt-4 p-3 rounded-xl text-center font-bold text-xs uppercase">CALCULANDO...</div>
-                            </div>
-                        </div>
-
-                        <div class="card-blur p-6 rounded-2xl border border-gray-800">
-                            <h3 class="text-sm font-bold text-gray-300 uppercase mb-4">Spread / Hándicap</h3>
-                            <div class="space-y-3">
-                                <div class="flex justify-between text-sm"><span class="text-gray-400">Cubre Local:</span><span id="prob-spread-home" class="font-bold text-emerald-400">0%</span></div>
-                                <div class="flex justify-between text-sm"><span class="text-gray-400">Cubre Visitante:</span><span id="prob-spread-away" class="font-bold text-gray-300">0%</span></div>
-                                <div class="flex justify-between text-sm border-t border-gray-800 pt-2"><span class="text-gray-400">EV:</span><span id="ev-spread" class="font-bold">0%</span></div>
-                                <div id="badge-spread" class="mt-4 p-3 rounded-xl text-center font-bold text-xs uppercase">CALCULANDO...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 3: JUGADORES CLAVE -->
-        <section id="view-players" class="hidden space-y-6">
-            <div class="card-blur p-4 rounded-2xl border border-gray-800 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <label class="text-sm text-gray-400 font-medium">Seleccionar Equipo:</label>
-                    <select id="player-team-select" onchange="renderPlayers()" class="bg-slate-800 border border-gray-700 rounded-xl px-4 py-2 text-white font-semibold"></select>
-                </div>
-            </div>
-            <div id="players-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
-        </section>
-    </main>
-
-    <script>
-        let nflData = [
-            { team: "Kansas City Chiefs", id: "KC", gp: 2, rushYds: 210, passYds: 540, pf: 54, pa: 36, rushTd: 2, passTd: 5, qb: { name: "Patrick Mahomes", passYds: 540, passTd: 5, int: 1, rating: 108.5 }, rb: { name: "Isiah Pacheco", rushYds: 145, rushTd: 2, avg: 4.8 }, wr: { name: "Travis Kelce", rec: 12, recYds: 165, recTd: 2 } },
-            { team: "Baltimore Ravens", id: "BAL", gp: 2, rushYds: 310, passYds: 420, pf: 52, pa: 41, rushTd: 4, passTd: 3, qb: { name: "Lamar Jackson", passYds: 420, passTd: 3, int: 1, rating: 98.2 }, rb: { name: "Derrick Henry", rushYds: 180, rushTd: 3, avg: 5.1 }, wr: { name: "Zay Flowers", rec: 11, recYds: 140, recTd: 1 } },
-            { team: "San Francisco 49ers", id: "SF", gp: 2, rushYds: 280, passYds: 490, pf: 58, pa: 32, rushTd: 3, passTd: 4, qb: { name: "Brock Purdy", passYds: 490, passTd: 4, int: 1, rating: 102.1 }, rb: { name: "Christian McCaffrey", rushYds: 190, rushTd: 2, avg: 4.9 }, wr: { name: "Deebo Samuel", rec: 13, recYds: 175, recTd: 2 } },
-            { team: "Philadelphia Eagles", id: "PHI", gp: 2, rushYds: 260, passYds: 460, pf: 50, pa: 40, rushTd: 4, passTd: 3, qb: { name: "Jalen Hurts", passYds: 460, passTd: 3, int: 2, rating: 91.5 }, rb: { name: "Saquon Barkley", rushYds: 205, rushTd: 3, avg: 5.2 }, wr: { name: "A.J. Brown", rec: 10, recYds: 185, recTd: 2 } }
-        ];
-
-        let yardsChartInstance = null, pointsChartInstance = null;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-            populateSelects();
-            renderDashboard();
-            calculateOdds();
-            renderPlayers();
-        });
-
-        function switchTab(tab) {
-            ['dashboard', 'calculator', 'players'].forEach(t => {
-                document.getElementById(`view-${t}`).classList.add('hidden');
-                document.getElementById(`tab-${t}`).className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all text-gray-400 hover:text-white";
-            });
-            document.getElementById(`view-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-blue-600 text-white shadow-lg";
-        }
-
-        function populateSelects() {
-            const calcHome = document.getElementById('calc-home');
-            const calcAway = document.getElementById('calc-away');
-            const playerSelect = document.getElementById('player-team-select');
-            calcHome.innerHTML = ''; calcAway.innerHTML = ''; playerSelect.innerHTML = '';
-            nflData.forEach((t, i) => {
-                calcHome.add(new Option(t.team, t.id, false, i === 0));
-                calcAway.add(new Option(t.team, t.id, false, i === 1));
-                playerSelect.add(new Option(t.team, t.id));
-            });
-        }
-
-        function renderDashboard() {
-            const metric = document.getElementById('sort-metric').value;
-            let sorted = nflData.map(t => ({
-                ...t,
-                rushYpg: (t.rushYds / t.gp).toFixed(1),
-                passYpg: (t.passYds / t.gp).toFixed(1),
-                ppg: (t.pf / t.gp).toFixed(1),
-                opp_ppg: (t.pa / t.gp).toFixed(1)
-            })).sort((a, b) => parseFloat(b[metric]) - parseFloat(a[metric]));
-
-            document.getElementById('teams-table-body').innerHTML = sorted.map(t => `
-                <tr class="hover:bg-slate-800/40">
-                    <td class="p-4 font-bold text-white">${t.team}</td>
-                    <td class="p-4 text-center text-gray-400">${t.gp}</td>
-                    <td class="p-4 text-right">${t.rushYds} (${t.rushYpg})</td>
-                    <td class="p-4 text-right">${t.passYds} (${t.passYpg})</td>
-                    <td class="p-4 text-right font-bold text-emerald-400">${t.ppg}</td>
-                    <td class="p-4 text-right font-bold text-rose-400">${t.opp_ppg}</td>
-                    <td class="p-4 text-center">${t.rushTd}</td>
-                    <td class="p-4 text-center">${t.passTd}</td>
-                </tr>
-            `).join('');
-
-            renderCharts(sorted);
-        }
-
-        function renderCharts(data) {
-            const labels = data.map(t => t.id);
-            if(yardsChartInstance) yardsChartInstance.destroy();
-            yardsChartInstance = new Chart(document.getElementById('yardsChart'), {
-                type: 'bar',
-                data: { labels: labels, datasets: [{ label: 'Yardas Pase', data: data.map(t => t.passYpg), backgroundColor: '#3b82f6' }, { label: 'Yardas Tierra', data: data.map(t => t.rushYpg), backgroundColor: '#10b981' }] },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            if(pointsChartInstance) pointsChartInstance.destroy();
-            pointsChartInstance = new Chart(document.getElementById('pointsChart'), {
-                type: 'bar',
-                data: { labels: labels, datasets: [{ label: 'PPG', data: data.map(t => t.ppg), backgroundColor: '#10b981' }, { label: 'Opp PPG', data: data.map(t => t.opp_ppg), backgroundColor: '#f43f5e' }] },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        function calculateOdds() {
-            const home = nflData.find(t => t.id === document.getElementById('calc-home').value);
-            const away = nflData.find(t => t.id === document.getElementById('calc-away').value);
-            const lineTotal = parseFloat(document.getElementById('line-total').value) || 45.5;
-            const lineSpread = parseFloat(document.getElementById('line-spread').value) || -3.5;
-            const odds = parseFloat(document.getElementById('line-odds').value) || 1.90;
-
-            document.getElementById('proj-home-name').innerText = home.id;
-            document.getElementById('proj-away-name').innerText = away.id;
-
-            const expHome = ((home.pf/home.gp) / 21.8 * (away.pa/away.gp) / 21.8 * 21.8) + 0.9;
-            const expAway = ((away.pf/away.gp) / 21.8 * (home.pa/home.gp) / 21.8 * 21.8) - 0.9;
-            const expTotal = expHome + expAway;
-
-            document.getElementById('proj-home-score').innerText = expHome.toFixed(1);
-            document.getElementById('proj-away-score').innerText = expAway.toFixed(1);
-            document.getElementById('proj-total-score').innerText = expTotal.toFixed(1);
-
-            function poissonCdf(k, lambda) {
-                let sum = 0;
-                for (let i = 0; i <= k; i++) {
-                    let f = 1; for (let j = 1; j <= i; j++) f *= j;
-                    sum += (Math.pow(lambda, i) * Math.exp(-lambda)) / f;
-                }
-                return sum;
-            }
-
-            const probOver = (1 - poissonCdf(Math.floor(lineTotal), expTotal)) * 100;
-            document.getElementById('prob-over').innerText = probOver.toFixed(1) + '%';
-            document.getElementById('prob-under').innerText = (100 - probOver).toFixed(1) + '%';
-
-            const badgeTotal = document.getElementById('badge-total');
-            badgeTotal.innerText = probOver > 58 ? `OVER ${lineTotal} RECOMENDADO` : (probOver < 42 ? `UNDER ${lineTotal} RECOMENDADO` : 'SIN VENTAJA CLARA');
-            badgeTotal.className = `mt-4 p-3 rounded-xl text-center font-bold text-xs uppercase ${probOver > 58 || probOver < 42 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-800 text-gray-400'}`;
-        }
-
-        function renderPlayers() {
-            const team = nflData.find(t => t.id === document.getElementById('player-team-select').value);
-            document.getElementById('players-grid').innerHTML = `
-                <div class="card-blur p-6 rounded-2xl border border-gray-800"><h3 class="text-lg font-black text-white">${team.qb.name} (QB)</h3><p class="text-sm text-gray-400 mt-2">Yardas Pase: ${team.qb.passYds} | TDs: ${team.qb.passTd}</p></div>
-                <div class="card-blur p-6 rounded-2xl border border-gray-800"><h3 class="text-lg font-black text-white">${team.rb.name} (RB)</h3><p class="text-sm text-gray-400 mt-2">Yardas Tierra: ${team.rb.rushYds} | TDs: ${team.rb.rushTd}</p></div>
-                <div class="card-blur p-6 rounded-2xl border border-gray-800"><h3 class="text-lg font-black text-white">${team.wr.name} (WR)</h3><p class="text-sm text-gray-400 mt-2">Yardas Recibidas: ${team.wr.recYds} | TDs: ${team.wr.recTd}</p></div>
-            `;
-        }
-
-        async function syncESPNData() {
-            const btn = document.getElementById('sync-btn');
-            btn.innerHTML = 'Actualizado';
-            setTimeout(() => btn.innerHTML = 'Sincronizar ESPN', 2000);
-        }
-    </script>
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      renderTable(nflTeams);
+    });
+  </script>
 </body>
 </html>

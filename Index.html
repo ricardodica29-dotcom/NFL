@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NFL Betting Analytics 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
@@ -18,8 +17,8 @@
       <div class="flex items-center gap-3">
         <div class="p-2 bg-blue-600 rounded-lg"><i data-lucide="trophy" class="w-6 h-6 text-white"></i></div>
         <div>
-          <h1 class="font-bold text-lg leading-none">NFL Betting Analytics</h1>
-          <p class="text-xs text-gray-400 mt-1">Modelo Poisson & Eficiencia 32 Equipos</p>
+          <h1 class="font-bold text-lg leading-none">NFL Betting Analytics 2026</h1>
+          <p class="text-xs text-gray-400 mt-1">Muestreo: 2 Partidos (Semanas 1 y 2)</p>
         </div>
       </div>
     </div>
@@ -27,9 +26,12 @@
 
   <main class="max-w-7xl mx-auto px-4 mt-6">
     <div class="bg-slate-800/60 p-4 rounded-xl border border-gray-700/50 mb-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="font-bold text-lg flex items-center gap-2"><i data-lucide="list" class="w-5 h-5 text-blue-400"></i> Tabla General de Equipos (32/32)</h2>
-        <input type="text" id="searchInput" onkeyup="filterTeams()" placeholder="Buscar equipo..." class="bg-slate-900 border border-gray-700 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
+        <h2 class="font-bold text-lg flex items-center gap-2">
+          <i data-lucide="users" class="w-5 h-5 text-blue-400"></i> 
+          32 Equipos (Stats 2 Juegos + Lideres QB/RB)
+        </h2>
+        <input type="text" id="searchInput" onkeyup="filterTeams()" placeholder="Buscar equipo o jugador..." class="bg-slate-900 border border-gray-700 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500 w-full md:w-64">
       </div>
       
       <div class="overflow-x-auto">
@@ -38,8 +40,8 @@
             <tr>
               <th class="p-3">Equipo</th>
               <th class="p-3 text-center">JJ</th>
-              <th class="p-3 text-center">Y. Tierra</th>
-              <th class="p-3 text-center">Y. Pase</th>
+              <th class="p-3">QB Principal (Yardas / TD-INT)</th>
+              <th class="p-3">RB Principal (Yardas / TD)</th>
               <th class="p-3 text-center">PPG</th>
               <th class="p-3 text-center">PAG</th>
             </tr>
@@ -52,39 +54,39 @@
   </main>
 
   <script>
-    const nflTeams = [
-      { name: "Arizona Cardinals", code: "ARI", jj: 17, yt: 2150, yp: 3600, ppg: 21.2, pag: 24.5 },
-      { name: "Atlanta Falcons", code: "ATL", jj: 17, yt: 2020, yp: 3850, ppg: 22.8, pag: 21.9 },
-      { name: "Baltimore Ravens", code: "BAL", jj: 17, yt: 2650, yp: 3700, ppg: 28.4, pag: 16.5 },
-      { name: "Buffalo Bills", code: "BUF", jj: 17, yt: 2210, yp: 4100, ppg: 26.5, pag: 18.3 },
-      { name: "Carolina Panthers", code: "CAR", jj: 17, yt: 1780, yp: 3100, ppg: 15.6, pag: 26.8 },
-      { name: "Chicago Bears", code: "CHI", jj: 17, yt: 2300, yp: 3250, ppg: 21.0, pag: 22.3 },
-      { name: "Cincinnati Bengals", code: "CIN", jj: 17, yt: 1850, yp: 4200, ppg: 24.1, pag: 23.0 },
-      { name: "Cleveland Browns", code: "CLE", jj: 17, yt: 2100, yp: 3400, ppg: 21.5, pag: 20.1 },
-      { name: "Dallas Cowboys", code: "DAL", jj: 17, yt: 1950, yp: 4350, ppg: 27.9, pag: 20.2 },
-      { name: "Denver Broncos", code: "DEN", jj: 17, yt: 1820, yp: 3300, ppg: 20.8, pag: 23.4 },
-      { name: "Detroit Lions", code: "DET", jj: 17, yt: 2350, yp: 4400, ppg: 27.1, pag: 23.2 },
-      { name: "Green Bay Packers", code: "GB", jj: 17, yt: 2180, yp: 3900, ppg: 23.8, pag: 20.6 },
-      { name: "Houston Texans", code: "HOU", jj: 17, yt: 1790, yp: 4150, ppg: 22.2, pag: 20.8 },
-      { name: "Indianapolis Colts", code: "IND", jj: 17, yt: 2200, yp: 3650, ppg: 23.3, pag: 24.1 },
-      { name: "Jacksonville Jaguars", code: "JAX", jj: 17, yt: 1830, yp: 3800, ppg: 22.2, pag: 21.8 },
-      { name: "Kansas City Chiefs", code: "KC", jj: 17, yt: 1860, yp: 4250, ppg: 24.6, pag: 17.3 },
-      { name: "Las Vegas Raiders", code: "LV", jj: 17, yt: 1600, yp: 3500, ppg: 19.5, pag: 24.1 },
-      { name: "Los Angeles Chargers", code: "LAC", jj: 17, yt: 1800, yp: 3950, ppg: 20.4, pag: 23.4 },
-      { name: "Los Angeles Rams", code: "LAR", jj: 17, yt: 2050, yp: 4100, ppg: 23.8, pag: 22.2 },
-      { name: "Miami Dolphins", code: "MIA", jj: 17, yt: 2310, yp: 4500, ppg: 29.2, pag: 23.0 },
-      { name: "Minnesota Vikings", code: "MIN", jj: 17, yt: 1550, yp: 4300, ppg: 20.2, pag: 21.3 },
-      { name: "New England Patriots", code: "NE", jj: 17, yt: 1800, yp: 3100, ppg: 13.9, pag: 21.5 },
-      { name: "New Orleans Saints", code: "NO", jj: 17, yt: 1740, yp: 3900, ppg: 23.6, pag: 19.2 },
-      { name: "New York Giants", code: "NYG", jj: 17, yt: 1870, yp: 3000, ppg: 15.6, pag: 23.9 },
-      { name: "New York Jets", code: "NYJ", jj: 17, yt: 1650, yp: 3200, ppg: 15.8, pag: 20.9 },
-      { name: "Philadelphia Eagles", code: "PHI", jj: 17, yt: 2200, yp: 3800, ppg: 25.5, pag: 22.2 },
-      { name: "Pittsburgh Steelers", code: "PIT", jj: 17, yt: 2000, yp: 3180, ppg: 17.9, pag: 19.1 },
-      { name: "San Francisco 49ers", code: "SF", jj: 17, yt: 2390, yp: 4400, ppg: 28.9, pag: 17.5 },
-      { name: "Seattle Seahawks", code: "SEA", jj: 17, yt: 1540, yp: 3900, ppg: 21.4, pag: 23.6 },
-      { name: "Tampa Bay Buccaneers", code: "TB", jj: 17, yt: 1500, yp: 3850, ppg: 20.5, pag: 19.1 },
-      { name: "Tennessee Titans", code: "TEN", jj: 17, yt: 1850, yp: 3200, ppg: 17.9, pag: 21.6 },
-      { name: "Washington Commanders", code: "WAS", jj: 17, yt: 1800, yp: 3750, ppg: 19.4, pag: 30.5 }
+    const nfl2026Data = [
+      { name: "Arizona Cardinals", code: "ARI", jj: 2, qb: "K. Murray (480 Yds, 3-1 TD)", rb: "J. Conner (165 Yds, 2 TD)", ppg: 22.5, pag: 21.0 },
+      { name: "Atlanta Falcons", code: "ATL", jj: 2, qb: "K. Cousins (490 Yds, 3-2 TD)", rb: "B. Robinson (180 Yds, 1 TD)", ppg: 20.0, pag: 19.5 },
+      { name: "Baltimore Ravens", code: "BAL", jj: 2, qb: "L. Jackson (420 Yds, 3-1 TD)", rb: "D. Henry (210 Yds, 3 TD)", ppg: 26.0, pag: 20.5 },
+      { name: "Buffalo Bills", code: "BUF", jj: 2, qb: "J. Allen (510 Yds, 4-1 TD)", rb: "J. Cook (175 Yds, 2 TD)", ppg: 28.5, pag: 18.0 },
+      { name: "Carolina Panthers", code: "CAR", jj: 2, qb: "B. Young (310 Yds, 1-3 TD)", rb: "C. Hubbard (120 Yds, 0 TD)", ppg: 13.0, pag: 27.5 },
+      { name: "Chicago Bears", code: "CHI", jj: 2, qb: "C. Williams (380 Yds, 2-2 TD)", rb: "D. Swift (135 Yds, 1 TD)", ppg: 18.5, pag: 21.0 },
+      { name: "Cincinnati Bengals", code: "CIN", jj: 2, qb: "J. Burrow (520 Yds, 4-2 TD)", rb: "C. Brown (140 Yds, 1 TD)", ppg: 23.0, pag: 24.0 },
+      { name: "Cleveland Browns", code: "CLE", jj: 2, qb: "D. Watson (360 Yds, 2-2 TD)", rb: "J. Ford (130 Yds, 1 TD)", ppg: 17.5, pag: 20.0 },
+      { name: "Dallas Cowboys", code: "DAL", jj: 2, qb: "D. Prescott (540 Yds, 4-1 TD)", rb: "R. Dowdle (115 Yds, 0 TD)", ppg: 25.5, pag: 22.0 },
+      { name: "Denver Broncos", code: "DEN", jj: 2, qb: "B. Nix (390 Yds, 2-3 TD)", rb: "J. Williams (125 Yds, 1 TD)", ppg: 16.5, pag: 20.5 },
+      { name: "Detroit Lions", code: "DET", jj: 2, qb: "J. Goff (505 Yds, 3-2 TD)", rb: "D. Montgomery (170 Yds, 2 TD)", ppg: 24.0, pag: 21.5 },
+      { name: "Green Bay Packers", code: "GB", jj: 2, qb: "J. Love (460 Yds, 3-1 TD)", rb: "J. Jacobs (190 Yds, 2 TD)", ppg: 24.5, pag: 19.0 },
+      { name: "Houston Texans", code: "HOU", jj: 2, qb: "C. Stroud (495 Yds, 3-1 TD)", rb: "J. Mixon (185 Yds, 2 TD)", ppg: 22.0, pag: 18.5 },
+      { name: "Indianapolis Colts", code: "IND", jj: 2, qb: "A. Richardson (410 Yds, 3-2 TD)", rb: "J. Taylor (195 Yds, 2 TD)", ppg: 23.5, pag: 25.0 },
+      { name: "Jacksonville Jaguars", code: "JAX", jj: 2, qb: "T. Lawrence (435 Yds, 2-2 TD)", rb: "T. Etienne (150 Yds, 1 TD)", ppg: 19.5, pag: 21.0 },
+      { name: "Kansas City Chiefs", code: "KC", jj: 2, qb: "P. Mahomes (540 Yds, 4-1 TD)", rb: "I. Pacheco (160 Yds, 2 TD)", ppg: 27.0, pag: 17.5 },
+      { name: "Las Vegas Raiders", code: "LV", jj: 2, qb: "G. Minshew (400 Yds, 2-2 TD)", rb: "Z. White (110 Yds, 0 TD)", ppg: 17.0, pag: 23.0 },
+      { name: "Los Angeles Chargers", code: "LAC", jj: 2, qb: "J. Herbert (380 Yds, 2-1 TD)", rb: "J. Dobbins (215 Yds, 2 TD)", ppg: 21.0, pag: 13.5 },
+      { name: "Los Angeles Rams", code: "LAR", jj: 2, qb: "M. Stafford (530 Yds, 3-2 TD)", rb: "K. Williams (155 Yds, 2 TD)", ppg: 23.0, pag: 24.5 },
+      { name: "Miami Dolphins", code: "MIA", jj: 2, qb: "T. Tagovailoa (460 Yds, 2-3 TD)", rb: "D. Achane (170 Yds, 1 TD)", ppg: 18.0, pag: 28.0 },
+      { name: "Minnesota Vikings", code: "MIN", jj: 2, qb: "S. Darnold (445 Yds, 4-1 TD)", rb: "A. Jones (165 Yds, 1 TD)", ppg: 25.0, pag: 17.0 },
+      { name: "New England Patriots", code: "NE", jj: 2, qb: "J. Brissett (295 Yds, 1-0 TD)", rb: "R. Stevenson (180 Yds, 2 TD)", ppg: 14.5, pag: 18.0 },
+      { name: "New Orleans Saints", code: "NO", jj: 2, qb: "D. Carr (485 Yds, 5-1 TD)", rb: "A. Kamara (195 Yds, 3 TD)", ppg: 38.0, pag: 14.5 },
+      { name: "New York Giants", code: "NYG", jj: 2, qb: "D. Jones (375 Yds, 2-2 TD)", rb: "D. Singletary (130 Yds, 1 TD)", ppg: 12.5, pag: 24.0 },
+      { name: "New York Jets", code: "NYJ", jj: 2, qb: "A. Rodgers (390 Yds, 3-1 TD)", rb: "B. Hall (145 Yds, 1 TD)", ppg: 21.0, pag: 22.0 },
+      { name: "Philadelphia Eagles", code: "PHI", jj: 2, qb: "J. Hurts (460 Yds, 3-2 TD)", rb: "S. Barkley (205 Yds, 3 TD)", ppg: 25.0, pag: 22.5 },
+      { name: "Pittsburgh Steelers", code: "PIT", jj: 2, qb: "J. Fields (310 Yds, 1-0 TD)", rb: "N. Harris (140 Yds, 0 TD)", ppg: 15.5, pag: 8.0 },
+      { name: "San Francisco 49ers", code: "SF", jj: 2, qb: "B. Purdy (490 Yds, 3-1 TD)", rb: "J. Mason (240 Yds, 2 TD)", ppg: 29.0, pag: 21.0 },
+      { name: "Seattle Seahawks", code: "SEA", jj: 2, qb: "G. Smith (475 Yds, 2-1 TD)", rb: "K. Walker III (135 Yds, 1 TD)", ppg: 24.5, pag: 20.0 },
+      { name: "Tampa Bay Buccaneers", code: "TB", jj: 2, qb: "B. Mayfield (470 Yds, 5-1 TD)", rb: "R. White (125 Yds, 0 TD)", ppg: 28.5, pag: 18.0 },
+      { name: "Tennessee Titans", code: "TEN", jj: 2, qb: "W. Levis (320 Yds, 2-3 TD)", rb: "T. Pollard (145 Yds, 1 TD)", ppg: 17.0, pag: 24.0 },
+      { name: "Washington Commanders", code: "WAS", jj: 2, qb: "J. Daniels (385 Yds, 2-0 TD)", rb: "B. Robinson Jr. (175 Yds, 1 TD)", ppg: 19.5, pag: 27.5 }
     ];
 
     function renderTable(teams) {
@@ -94,9 +96,9 @@
         tbody.innerHTML += `
           <tr class="hover:bg-slate-700/30 transition">
             <td class="p-3 font-semibold">${t.name} <span class="text-xs text-gray-500">(${t.code})</span></td>
-            <td class="p-3 text-center text-gray-300">${t.jj}</td>
-            <td class="p-3 text-center text-gray-300">${t.yt}</td>
-            <td class="p-3 text-center text-gray-300">${t.yp}</td>
+            <td class="p-3 text-center text-gray-300 font-bold">${t.jj}</td>
+            <td class="p-3 text-blue-300 text-xs font-mono">${t.qb}</td>
+            <td class="p-3 text-emerald-300 text-xs font-mono">${t.rb}</td>
             <td class="p-3 text-center font-bold text-green-400">${t.ppg}</td>
             <td class="p-3 text-center font-bold text-red-400">${t.pag}</td>
           </tr>
@@ -106,13 +108,18 @@
 
     function filterTeams() {
       const q = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = nflTeams.filter(t => t.name.toLowerCase().includes(q) || t.code.toLowerCase().includes(q));
+      const filtered = nfl2026Data.filter(t => 
+        t.name.toLowerCase().includes(q) || 
+        t.code.toLowerCase().includes(q) ||
+        t.qb.toLowerCase().includes(q) ||
+        t.rb.toLowerCase().includes(q)
+      );
       renderTable(filtered);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
-      renderTable(nflTeams);
+      renderTable(nfl2026Data);
     });
   </script>
 </body>

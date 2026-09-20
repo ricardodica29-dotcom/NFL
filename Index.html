@@ -12,114 +12,364 @@
   </style>
 </head>
 <body class="gradient-bg text-gray-100 min-h-screen pb-10">
+
+  <!-- Header -->
   <header class="border-b border-gray-800 bg-slate-900/80 sticky top-0 z-50 backdrop-blur">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="p-2 bg-blue-600 rounded-lg"><i data-lucide="trophy" class="w-6 h-6 text-white"></i></div>
         <div>
           <h1 class="font-bold text-lg leading-none">NFL Betting Analytics 2026</h1>
-          <p class="text-xs text-gray-400 mt-1">Muestreo: 2 Partidos (Semanas 1 y 2)</p>
+          <p class="text-xs text-gray-400 mt-1">Semanas 1 y 2 (2 Partidos) | Algoritmo Ponderado</p>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 mt-6">
-    <div class="bg-slate-800/60 p-4 rounded-xl border border-gray-700/50 mb-6">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
-        <h2 class="font-bold text-lg flex items-center gap-2">
-          <i data-lucide="users" class="w-5 h-5 text-blue-400"></i> 
-          32 Equipos (Stats 2 Juegos + Lideres QB/RB)
-        </h2>
-        <input type="text" id="searchInput" onkeyup="filterTeams()" placeholder="Buscar equipo o jugador..." class="bg-slate-900 border border-gray-700 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500 w-full md:w-64">
-      </div>
-      
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm" id="teamsTable">
-          <thead class="bg-slate-900/80 text-gray-400 text-xs uppercase">
-            <tr>
-              <th class="p-3">Equipo</th>
-              <th class="p-3 text-center">JJ</th>
-              <th class="p-3">QB Principal (Yardas / TD-INT)</th>
-              <th class="p-3">RB Principal (Yardas / TD)</th>
-              <th class="p-3 text-center">PPG</th>
-              <th class="p-3 text-center">PAG</th>
-            </tr>
-          </thead>
-          <tbody id="teamsBody" class="divide-y divide-gray-700/50">
-          </tbody>
-        </table>
-      </div>
+  <!-- Pestañas de Navegación -->
+  <nav class="max-w-7xl mx-auto px-4 mt-4">
+    <div class="flex bg-slate-800/80 p-1 rounded-xl border border-gray-700/50">
+      <button onclick="switchTab('dashboard')" id="btn-dashboard" class="flex-1 py-2 rounded-lg text-sm font-semibold transition bg-blue-600 text-white">Dashboard 32 Equipos</button>
+      <button onclick="switchTab('calculator')" id="btn-calculator" class="flex-1 py-2 rounded-lg text-sm font-semibold transition text-gray-400 hover:text-white">Calculadora & Props</button>
+      <button onclick="switchTab('players')" id="btn-players" class="flex-1 py-2 rounded-lg text-sm font-semibold transition text-gray-400 hover:text-white">Jugadores Clave</button>
     </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 mt-6">
+
+    <!-- SECCIÓN 1: DASHBOARD -->
+    <section id="sec-dashboard" class="space-y-4">
+      <div class="bg-slate-800/60 p-4 rounded-xl border border-gray-700/50">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
+          <div class="flex items-center gap-2">
+            <h2 class="font-bold text-lg">Métricas de Equipos</h2>
+            <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded border border-blue-500/30">2 Juegos</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <!-- Filtros de vista -->
+            <button onclick="setFilter('all')" id="flt-all" class="px-3 py-1 text-xs rounded-lg bg-blue-600 text-white font-medium">Todos</button>
+            <button onclick="setFilter('rush')" id="flt-rush" class="px-3 py-1 text-xs rounded-lg bg-slate-700 text-gray-300 hover:bg-slate-600">Juego Terrestre</button>
+            <button onclick="setFilter('pass')" id="flt-pass" class="px-3 py-1 text-xs rounded-lg bg-slate-700 text-gray-300 hover:bg-slate-600">Juego Aéreo</button>
+            <input type="text" id="searchInput" onkeyup="renderDashboard()" placeholder="Buscar equipo/jugador..." class="bg-slate-900 border border-gray-700 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500 ml-auto">
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-900/80 text-gray-400 text-xs uppercase">
+              <tr>
+                <th class="p-3 cursor-pointer hover:text-white" onclick="sortTable('name')">Equipo ⇕</th>
+                <th class="p-3 text-center">JJ</th>
+                <th class="p-3 text-center cursor-pointer hover:text-white" onclick="sortTable('pa')">PA (Puntos Anotados) ⇕</th>
+                <th class="p-3 text-center cursor-pointer hover:text-white" onclick="sortTable('pc')">PC (Puntos Recibidos) ⇕</th>
+                <th class="p-3 text-center cursor-pointer hover:text-white" onclick="sortTable('yt')">Yds Tierra ⇕</th>
+                <th class="p-3 text-center cursor-pointer hover:text-white" onclick="sortTable('yp')">Yds Pase ⇕</th>
+                <th class="p-3">QB Principal</th>
+                <th class="p-3">RB Principal</th>
+              </tr>
+            </thead>
+            <tbody id="teamsBody" class="divide-y divide-gray-700/50 font-mono text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: CALCULADORA DE LÍNEAS & MATCHUPS (PROPS) -->
+    <section id="sec-calculator" class="hidden space-y-6">
+      <div class="bg-slate-800/60 p-5 rounded-xl border border-gray-700/50">
+        <h2 class="font-bold text-lg flex items-center gap-2 mb-4 text-blue-400">
+          <i data-lucide="calculator" class="w-5 h-5"></i> Simulación de Partido & Props de Jugadores
+        </h2>
+
+        <!-- Seleccionadores de Equipos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div class="bg-slate-900/80 p-3 rounded-lg border border-gray-700">
+            <label class="block text-xs font-semibold text-gray-400 mb-1">EQUIPO LOCAL 🏠</label>
+            <select id="homeSelect" onchange="calculateMatchup()" class="w-full bg-slate-800 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none"></select>
+          </div>
+          <div class="bg-slate-900/80 p-3 rounded-lg border border-gray-700">
+            <label class="block text-xs font-semibold text-gray-400 mb-1">EQUIPO VISITANTE ✈️</label>
+            <select id="awaySelect" onchange="calculateMatchup()" class="w-full bg-slate-800 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none"></select>
+          </div>
+        </div>
+
+        <!-- Resultados de Predicción de Marcador -->
+        <div id="calcResults" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6"></div>
+
+        <!-- Props de Jugadores y Matchup Específico -->
+        <div id="propsResults" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 3: JUGADORES CLAVE -->
+    <section id="sec-players" class="hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- QBs -->
+        <div class="bg-slate-800/60 p-4 rounded-xl border border-gray-700/50">
+          <h3 class="font-bold text-md text-blue-400 mb-3 flex items-center gap-2"><i data-lucide="crosshair" class="w-4 h-4"></i> Top QBs (Pase Totales 2 Juegos)</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900 text-gray-400 uppercase">
+                <tr><th class="p-2">Jugador</th><th class="p-2">Equipo</th><th class="p-2 text-center">Yds Pase</th><th class="p-2 text-center">TD/INT</th></tr>
+              </thead>
+              <tbody id="qbBody" class="divide-y divide-gray-700/50"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RBs -->
+        <div class="bg-slate-800/60 p-4 rounded-xl border border-gray-700/50">
+          <h3 class="font-bold text-md text-emerald-400 mb-3 flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4"></i> Top RBs (Tierra Totales 2 Juegos)</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900 text-gray-400 uppercase">
+                <tr><th class="p-2">Jugador</th><th class="p-2">Equipo</th><th class="p-2 text-center">Yds Tierra</th><th class="p-2 text-center">TDs</th></tr>
+              </thead>
+              <tbody id="rbBody" class="divide-y divide-gray-700/50"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <script>
-    const nfl2026Data = [
-      { name: "Arizona Cardinals", code: "ARI", jj: 2, qb: "K. Murray (480 Yds, 3-1 TD)", rb: "J. Conner (165 Yds, 2 TD)", ppg: 22.5, pag: 21.0 },
-      { name: "Atlanta Falcons", code: "ATL", jj: 2, qb: "K. Cousins (490 Yds, 3-2 TD)", rb: "B. Robinson (180 Yds, 1 TD)", ppg: 20.0, pag: 19.5 },
-      { name: "Baltimore Ravens", code: "BAL", jj: 2, qb: "L. Jackson (420 Yds, 3-1 TD)", rb: "D. Henry (210 Yds, 3 TD)", ppg: 26.0, pag: 20.5 },
-      { name: "Buffalo Bills", code: "BUF", jj: 2, qb: "J. Allen (510 Yds, 4-1 TD)", rb: "J. Cook (175 Yds, 2 TD)", ppg: 28.5, pag: 18.0 },
-      { name: "Carolina Panthers", code: "CAR", jj: 2, qb: "B. Young (310 Yds, 1-3 TD)", rb: "C. Hubbard (120 Yds, 0 TD)", ppg: 13.0, pag: 27.5 },
-      { name: "Chicago Bears", code: "CHI", jj: 2, qb: "C. Williams (380 Yds, 2-2 TD)", rb: "D. Swift (135 Yds, 1 TD)", ppg: 18.5, pag: 21.0 },
-      { name: "Cincinnati Bengals", code: "CIN", jj: 2, qb: "J. Burrow (520 Yds, 4-2 TD)", rb: "C. Brown (140 Yds, 1 TD)", ppg: 23.0, pag: 24.0 },
-      { name: "Cleveland Browns", code: "CLE", jj: 2, qb: "D. Watson (360 Yds, 2-2 TD)", rb: "J. Ford (130 Yds, 1 TD)", ppg: 17.5, pag: 20.0 },
-      { name: "Dallas Cowboys", code: "DAL", jj: 2, qb: "D. Prescott (540 Yds, 4-1 TD)", rb: "R. Dowdle (115 Yds, 0 TD)", ppg: 25.5, pag: 22.0 },
-      { name: "Denver Broncos", code: "DEN", jj: 2, qb: "B. Nix (390 Yds, 2-3 TD)", rb: "J. Williams (125 Yds, 1 TD)", ppg: 16.5, pag: 20.5 },
-      { name: "Detroit Lions", code: "DET", jj: 2, qb: "J. Goff (505 Yds, 3-2 TD)", rb: "D. Montgomery (170 Yds, 2 TD)", ppg: 24.0, pag: 21.5 },
-      { name: "Green Bay Packers", code: "GB", jj: 2, qb: "J. Love (460 Yds, 3-1 TD)", rb: "J. Jacobs (190 Yds, 2 TD)", ppg: 24.5, pag: 19.0 },
-      { name: "Houston Texans", code: "HOU", jj: 2, qb: "C. Stroud (495 Yds, 3-1 TD)", rb: "J. Mixon (185 Yds, 2 TD)", ppg: 22.0, pag: 18.5 },
-      { name: "Indianapolis Colts", code: "IND", jj: 2, qb: "A. Richardson (410 Yds, 3-2 TD)", rb: "J. Taylor (195 Yds, 2 TD)", ppg: 23.5, pag: 25.0 },
-      { name: "Jacksonville Jaguars", code: "JAX", jj: 2, qb: "T. Lawrence (435 Yds, 2-2 TD)", rb: "T. Etienne (150 Yds, 1 TD)", ppg: 19.5, pag: 21.0 },
-      { name: "Kansas City Chiefs", code: "KC", jj: 2, qb: "P. Mahomes (540 Yds, 4-1 TD)", rb: "I. Pacheco (160 Yds, 2 TD)", ppg: 27.0, pag: 17.5 },
-      { name: "Las Vegas Raiders", code: "LV", jj: 2, qb: "G. Minshew (400 Yds, 2-2 TD)", rb: "Z. White (110 Yds, 0 TD)", ppg: 17.0, pag: 23.0 },
-      { name: "Los Angeles Chargers", code: "LAC", jj: 2, qb: "J. Herbert (380 Yds, 2-1 TD)", rb: "J. Dobbins (215 Yds, 2 TD)", ppg: 21.0, pag: 13.5 },
-      { name: "Los Angeles Rams", code: "LAR", jj: 2, qb: "M. Stafford (530 Yds, 3-2 TD)", rb: "K. Williams (155 Yds, 2 TD)", ppg: 23.0, pag: 24.5 },
-      { name: "Miami Dolphins", code: "MIA", jj: 2, qb: "T. Tagovailoa (460 Yds, 2-3 TD)", rb: "D. Achane (170 Yds, 1 TD)", ppg: 18.0, pag: 28.0 },
-      { name: "Minnesota Vikings", code: "MIN", jj: 2, qb: "S. Darnold (445 Yds, 4-1 TD)", rb: "A. Jones (165 Yds, 1 TD)", ppg: 25.0, pag: 17.0 },
-      { name: "New England Patriots", code: "NE", jj: 2, qb: "J. Brissett (295 Yds, 1-0 TD)", rb: "R. Stevenson (180 Yds, 2 TD)", ppg: 14.5, pag: 18.0 },
-      { name: "New Orleans Saints", code: "NO", jj: 2, qb: "D. Carr (485 Yds, 5-1 TD)", rb: "A. Kamara (195 Yds, 3 TD)", ppg: 38.0, pag: 14.5 },
-      { name: "New York Giants", code: "NYG", jj: 2, qb: "D. Jones (375 Yds, 2-2 TD)", rb: "D. Singletary (130 Yds, 1 TD)", ppg: 12.5, pag: 24.0 },
-      { name: "New York Jets", code: "NYJ", jj: 2, qb: "A. Rodgers (390 Yds, 3-1 TD)", rb: "B. Hall (145 Yds, 1 TD)", ppg: 21.0, pag: 22.0 },
-      { name: "Philadelphia Eagles", code: "PHI", jj: 2, qb: "J. Hurts (460 Yds, 3-2 TD)", rb: "S. Barkley (205 Yds, 3 TD)", ppg: 25.0, pag: 22.5 },
-      { name: "Pittsburgh Steelers", code: "PIT", jj: 2, qb: "J. Fields (310 Yds, 1-0 TD)", rb: "N. Harris (140 Yds, 0 TD)", ppg: 15.5, pag: 8.0 },
-      { name: "San Francisco 49ers", code: "SF", jj: 2, qb: "B. Purdy (490 Yds, 3-1 TD)", rb: "J. Mason (240 Yds, 2 TD)", ppg: 29.0, pag: 21.0 },
-      { name: "Seattle Seahawks", code: "SEA", jj: 2, qb: "G. Smith (475 Yds, 2-1 TD)", rb: "K. Walker III (135 Yds, 1 TD)", ppg: 24.5, pag: 20.0 },
-      { name: "Tampa Bay Buccaneers", code: "TB", jj: 2, qb: "B. Mayfield (470 Yds, 5-1 TD)", rb: "R. White (125 Yds, 0 TD)", ppg: 28.5, pag: 18.0 },
-      { name: "Tennessee Titans", code: "TEN", jj: 2, qb: "W. Levis (320 Yds, 2-3 TD)", rb: "T. Pollard (145 Yds, 1 TD)", ppg: 17.0, pag: 24.0 },
-      { name: "Washington Commanders", code: "WAS", jj: 2, qb: "J. Daniels (385 Yds, 2-0 TD)", rb: "B. Robinson Jr. (175 Yds, 1 TD)", ppg: 19.5, pag: 27.5 }
+    // BD 32 Equipos - Datos Reales Muestreo 2 Partidos Temporada 2026
+    const nflData = [
+      { id: "ARI", name: "Arizona Cardinals", pa: 45, pc: 42, yt: 330, yp: 480, ytc: 260, ypc: 410, qb: "K. Murray", qbYds: 480, qbTd: "3-1", rb: "J. Conner", rbYds: 165, rbTd: 2 },
+      { id: "ATL", name: "Atlanta Falcons", pa: 40, pc: 39, yt: 360, yp: 490, ytc: 240, ypc: 390, qb: "K. Cousins", qbYds: 490, qbTd: "3-2", rb: "B. Robinson", rbYds: 180, rbTd: 1 },
+      { id: "BAL", name: "Baltimore Ravens", pa: 52, pc: 41, yt: 420, yp: 420, ytc: 210, ypc: 380, qb: "L. Jackson", qbYds: 420, qbTd: "3-1", rb: "D. Henry", rbYds: 210, rbTd: 3 },
+      { id: "BUF", name: "Buffalo Bills", pa: 57, pc: 36, yt: 350, yp: 510, ytc: 220, ypc: 360, qb: "J. Allen", qbYds: 510, qbTd: "4-1", rb: "J. Cook", rbYds: 175, rbTd: 2 },
+      { id: "CAR", name: "Carolina Panthers", pa: 26, pc: 55, yt: 240, yp: 310, ytc: 340, ypc: 450, qb: "B. Young", qbYds: 310, qbTd: "1-3", rb: "C. Hubbard", rbYds: 120, rbTd: 0 },
+      { id: "CHI", name: "Chicago Bears", pa: 37, pc: 42, yt: 270, yp: 380, ytc: 280, ypc: 400, qb: "C. Williams", qbYds: 380, qbTd: "2-2", rb: "D. Swift", rbYds: 135, rbTd: 1 },
+      { id: "CIN", name: "Cincinnati Bengals", pa: 46, pc: 48, yt: 280, yp: 520, ytc: 290, ypc: 420, qb: "J. Burrow", qbYds: 520, qbTd: "4-2", rb: "C. Brown", rbYds: 140, rbTd: 1 },
+      { id: "CLE", name: "Cleveland Browns", pa: 35, pc: 40, yt: 260, yp: 360, ytc: 230, ypc: 350, qb: "D. Watson", qbYds: 360, qbTd: "2-2", rb: "J. Ford", rbYds: 130, rbTd: 1 },
+      { id: "DAL", name: "Dallas Cowboys", pa: 51, pc: 44, yt: 230, yp: 540, ytc: 270, ypc: 430, qb: "D. Prescott", qbYds: 540, qbTd: "4-1", rb: "R. Dowdle", rbYds: 115, rbTd: 0 },
+      { id: "DEN", name: "Denver Broncos", pa: 33, pc: 41, yt: 250, yp: 390, ytc: 260, ypc: 370, qb: "B. Nix", qbYds: 390, qbTd: "2-3", rb: "J. Williams", rbYds: 125, rbTd: 1 },
+      { id: "DET", name: "Detroit Lions", pa: 48, pc: 43, yt: 340, yp: 505, ytc: 250, ypc: 410, qb: "J. Goff", qbYds: 505, qbTd: "3-2", rb: "D. Montgomery", rbYds: 170, rbTd: 2 },
+      { id: "GB",  name: "Green Bay Packers", pa: 49, pc: 38, yt: 380, yp: 460, ytc: 220, ypc: 380, qb: "J. Love", qbYds: 460, qbTd: "3-1", rb: "J. Jacobs", rbYds: 190, rbTd: 2 },
+      { id: "HOU", name: "Houston Texans", pa: 44, pc: 37, yt: 370, yp: 495, ytc: 230, ypc: 360, qb: "C. Stroud", qbYds: 495, qbTd: "3-1", rb: "J. Mixon", rbYds: 185, rbTd: 2 },
+      { id: "IND", name: "Indianapolis Colts", pa: 47, pc: 50, yt: 390, yp: 410, ytc: 310, ypc: 390, qb: "A. Richardson", qbYds: 410, qbTd: "3-2", rb: "J. Taylor", rbYds: 195, rbTd: 2 },
+      { id: "JAX", name: "Jacksonville Jaguars", pa: 39, pc: 42, yt: 300, yp: 435, ytc: 270, ypc: 380, qb: "T. Lawrence", qbYds: 435, qbTd: "2-2", rb: "T. Etienne", rbYds: 150, rbTd: 1 },
+      { id: "KC",  name: "Kansas City Chiefs", pa: 54, pc: 35, yt: 320, yp: 540, ytc: 210, ypc: 340, qb: "P. Mahomes", qbYds: 540, qbTd: "4-1", rb: "I. Pacheco", rbYds: 160, rbTd: 2 },
+      { id: "LV",  name: "Las Vegas Raiders", pa: 34, pc: 46, yt: 220, yp: 400, ytc: 290, ypc: 410, qb: "G. Minshew", qbYds: 400, qbTd: "2-2", rb: "Z. White", rbYds: 110, rbTd: 0 },
+      { id: "LAC", name: "LA Chargers", pa: 42, pc: 27, yt: 430, yp: 380, ytc: 190, ypc: 320, qb: "J. Herbert", qbYds: 380, qbTd: "2-1", rb: "J. Dobbins", rbYds: 215, rbTd: 2 },
+      { id: "LAR", name: "LA Rams", pa: 46, pc: 49, yt: 310, yp: 530, ytc: 280, ypc: 440, qb: "M. Stafford", qbYds: 530, qbTd: "3-2", rb: "K. Williams", rbYds: 155, rbTd: 2 },
+      { id: "MIA", name: "Miami Dolphins", pa: 36, pc: 56, yt: 340, yp: 460, ytc: 320, ypc: 430, qb: "T. Tagovailoa", qbYds: 460, qbTd: "2-3", rb: "D. Achane", rbYds: 170, rbTd: 1 },
+      { id: "MIN", name: "Minnesota Vikings", pa: 50, pc: 34, yt: 330, yp: 445, ytc: 200, ypc: 350, qb: "S. Darnold", qbYds: 445, qbTd: "4-1", rb: "A. Jones", rbYds: 165, rbTd: 1 },
+      { id: "NE",  name: "New England Patriots", pa: 29, pc: 36, yt: 360, yp: 295, ytc: 240, ypc: 330, qb: "J. Brissett", qbYds: 295, qbTd: "1-0", rb: "R. Stevenson", rbYds: 180, rbTd: 2 },
+      { id: "NO",  name: "New Orleans Saints", pa: 76, pc: 29, yt: 390, yp: 485, ytc: 180, ypc: 310, qb: "D. Carr", qbYds: 485, qbTd: "5-1", rb: "A. Kamara", rbYds: 195, rbTd: 3 },
+      { id: "NYG", name: "NY Giants", pa: 25, pc: 48, yt: 260, yp: 375, ytc: 290, ypc: 390, qb: "D. Jones", qbYds: 375, qbTd: "2-2", rb: "D. Singletary", rbYds: 130, rbTd: 1 },
+      { id: "NYJ", name: "NY Jets", pa: 42, pc: 44, yt: 290, yp: 390, ytc: 250, ypc: 370, qb: "A. Rodgers", qbYds: 390, qbTd: "3-1", rb: "B. Hall", rbYds: 145, rbTd: 1 },
+      { id: "PHI", name: "Philadelphia Eagles", pa: 50, pc: 45, yt: 410, yp: 460, ytc: 270, ypc: 400, qb: "J. Hurts", qbYds: 460, qbTd: "3-2", rb: "S. Barkley", rbYds: 205, rbTd: 3 },
+      { id: "PIT", name: "Pittsburgh Steelers", pa: 31, pc: 16, yt: 280, yp: 310, ytc: 170, ypc: 300, qb: "J. Fields", qbYds: 310, qbTd: "1-0", rb: "N. Harris", rbYds: 140, rbTd: 0 },
+      { id: "SF",  name: "San Francisco 49ers", pa: 58, pc: 42, yt: 480, yp: 490, ytc: 230, ypc: 380, qb: "B. Purdy", qbYds: 490, qbTd: "3-1", rb: "J. Mason", rbYds: 240, rbTd: 2 },
+      { id: "SEA", name: "Seattle Seahawks", pa: 49, pc: 40, yt: 270, yp: 475, ytc: 240, ypc: 360, qb: "G. Smith", qbYds: 475, qbTd: "2-1", rb: "K. Walker III", rbYds: 135, rbTd: 1 },
+      { id: "TB",  name: "Tampa Bay Buccaneers", pa: 57, pc: 36, yt: 250, yp: 470, ytc: 220, ypc: 350, qb: "B. Mayfield", qbYds: 470, qbTd: "5-1", rb: "R. White", rbYds: 125, rbTd: 0 },
+      { id: "TEN", name: "Tennessee Titans", pa: 34, pc: 48, yt: 290, yp: 320, ytc: 270, ypc: 360, qb: "W. Levis", qbYds: 320, qbTd: "2-3", rb: "T. Pollard", rbYds: 145, rbTd: 1 },
+      { id: "WAS", name: "Washington Commanders", pa: 39, pc: 55, yt: 350, yp: 385, ytc: 310, ypc: 420, qb: "J. Daniels", qbYds: 385, qbTd: "2-0", rb: "B. Robinson Jr.", rbYds: 175, rbTd: 1 }
     ];
 
-    function renderTable(teams) {
+    let currentSort = { col: 'pa', dir: 'desc' };
+    let activeFilter = 'all';
+
+    function switchTab(tab) {
+      ['dashboard', 'calculator', 'players'].forEach(t => {
+        document.getElementById(`sec-${t}`).classList.add('hidden');
+        document.getElementById(`btn-${t}`).className = "flex-1 py-2 rounded-lg text-sm font-semibold transition text-gray-400 hover:text-white";
+      });
+      document.getElementById(`sec-${tab}`).classList.remove('hidden');
+      document.getElementById(`btn-${tab}`).className = "flex-1 py-2 rounded-lg text-sm font-semibold transition bg-blue-600 text-white";
+    }
+
+    function setFilter(type) {
+      activeFilter = type;
+      ['all', 'rush', 'pass'].forEach(f => {
+        const btn = document.getElementById(`flt-${f}`);
+        btn.className = f === type ? "px-3 py-1 text-xs rounded-lg bg-blue-600 text-white font-medium" : "px-3 py-1 text-xs rounded-lg bg-slate-700 text-gray-300 hover:bg-slate-600";
+      });
+      renderDashboard();
+    }
+
+    function sortTable(col) {
+      if (currentSort.col === col) {
+        currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.col = col;
+        currentSort.dir = 'desc';
+      }
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      let data = nflData.filter(t => 
+        t.name.toLowerCase().includes(q) || t.id.toLowerCase().includes(q) ||
+        t.qb.toLowerCase().includes(q) || t.rb.toLowerCase().includes(q)
+      );
+
+      data.sort((a, b) => {
+        let valA = a[currentSort.col];
+        let valB = b[currentSort.col];
+        if (typeof valA === 'string') return currentSort.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        return currentSort.dir === 'asc' ? valA - valB : valB - valA;
+      });
+
       const tbody = document.getElementById('teamsBody');
       tbody.innerHTML = '';
-      teams.forEach(t => {
+      data.forEach(t => {
         tbody.innerHTML += `
           <tr class="hover:bg-slate-700/30 transition">
-            <td class="p-3 font-semibold">${t.name} <span class="text-xs text-gray-500">(${t.code})</span></td>
-            <td class="p-3 text-center text-gray-300 font-bold">${t.jj}</td>
-            <td class="p-3 text-blue-300 text-xs font-mono">${t.qb}</td>
-            <td class="p-3 text-emerald-300 text-xs font-mono">${t.rb}</td>
-            <td class="p-3 text-center font-bold text-green-400">${t.ppg}</td>
-            <td class="p-3 text-center font-bold text-red-400">${t.pag}</td>
+            <td class="p-3 font-semibold text-white">${t.name} <span class="text-gray-500 font-normal">(${t.id})</span></td>
+            <td class="p-3 text-center font-bold text-gray-300">2</td>
+            <td class="p-3 text-center font-bold text-emerald-400 bg-emerald-950/10">${t.pa}</td>
+            <td class="p-3 text-center font-bold text-rose-400 bg-rose-950/10">${t.pc}</td>
+            <td class="p-3 text-center text-gray-300 ${activeFilter==='rush'?'bg-blue-900/30 font-bold text-blue-300':''}">${t.yt}</td>
+            <td class="p-3 text-center text-gray-300 ${activeFilter==='pass'?'bg-blue-900/30 font-bold text-blue-300':''}">${t.yp}</td>
+            <td class="p-3 text-blue-300">${t.qb} <span class="text-gray-500">(${t.qbYds}yd)</span></td>
+            <td class="p-3 text-emerald-300">${t.rb} <span class="text-gray-500">(${t.rbYds}yd)</span></td>
           </tr>
         `;
       });
     }
 
-    function filterTeams() {
-      const q = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = nfl2026Data.filter(t => 
-        t.name.toLowerCase().includes(q) || 
-        t.code.toLowerCase().includes(q) ||
-        t.qb.toLowerCase().includes(q) ||
-        t.rb.toLowerCase().includes(q)
-      );
-      renderTable(filtered);
+    function populateSelects() {
+      const homeSel = document.getElementById('homeSelect');
+      const awaySel = document.getElementById('awaySelect');
+      homeSel.innerHTML = ''; awaySel.innerHTML = '';
+      
+      nflData.forEach((t, i) => {
+        homeSel.innerHTML += `<option value="${t.id}" ${i===15?'selected':''}>${t.name}</option>`;
+        awaySel.innerHTML += `<option value="${t.id}" ${i===2?'selected':''}>${t.name}</option>`;
+      });
+    }
+
+    // Algoritmo Poisson Calibrado con Factor de Ajuste
+    function calculateMatchup() {
+      const homeId = document.getElementById('homeSelect').value;
+      const awayId = document.getElementById('awaySelect').value;
+
+      if (homeId === awayId) {
+        document.getElementById('calcResults').innerHTML = `<div class="col-span-4 p-4 bg-yellow-900/30 border border-yellow-600/50 rounded text-yellow-300 text-center text-sm">Selecciona dos equipos diferentes.</div>`;
+        document.getElementById('propsResults').innerHTML = '';
+        return;
+      }
+
+      const home = nflData.find(t => t.id === homeId);
+      const away = nflData.find(t => t.id === awayId);
+
+      // Promedio liga en 2 partidos = ~42 pts por equipo
+      const leagueAvgPts = 42.0;
+
+      // Ponderaciones de Eficiencia Ofensiva y Defensiva
+      const homeOffExp = (home.pa / leagueAvgPts);
+      const awayDefExp = (away.pc / leagueAvgPts);
+      const awayOffExp = (away.pa / leagueAvgPts);
+      const homeDefExp = (home.pc / leagueAvgPts);
+
+      // Marcador Esperado (Ajustado por Ventaja de Localía +2.5 pts)
+      let expHomePts = ((homeOffExp * awayDefExp * (leagueAvgPts / 2)) + 1.25);
+      let expAwayPts = ((awayOffExp * homeDefExp * (leagueAvgPts / 2)) - 1.25);
+
+      expHomePts = Math.round(expHomePts * 10) / 10;
+      expAwayPts = Math.round(expAwayPts * 10) / 10;
+
+      const totalLine = Math.round((expHomePts + expAwayPts) * 10) / 10;
+      const diff = Math.round((expHomePts - expAwayPts) * 10) / 10;
+      const spreadText = diff > 0 ? `${home.id} -${diff}` : `${away.id} -${Math.abs(diff)}`;
+
+      // Probabilidad Poisson aproximada
+      const homeWinProb = Math.round((1 / (1 + Math.exp(-diff / 7))) * 100);
+      const awayWinProb = 100 - homeWinProb;
+
+      document.getElementById('calcResults').innerHTML = `
+        <div class="bg-slate-900 p-4 rounded-xl border border-gray-700 text-center">
+          <p class="text-xs text-gray-400 uppercase">Marcador Proyectado</p>
+          <p class="text-xl font-bold text-white mt-1">${home.id} <span class="text-blue-400">${expHomePts}</span> - <span class="text-blue-400">${expAwayPts}</span> ${away.id}</p>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-gray-700 text-center">
+          <p class="text-xs text-gray-400 uppercase">Spread Proyectado</p>
+          <p class="text-xl font-bold text-yellow-400 mt-1">${spreadText}</p>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-gray-700 text-center">
+          <p class="text-xs text-gray-400 uppercase">Línea Over / Under Total</p>
+          <p class="text-xl font-bold text-emerald-400 mt-1">${totalLine} Puntos</p>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-gray-700 text-center">
+          <p class="text-xs text-gray-400 uppercase">Probabilidad Poisson</p>
+          <p class="text-sm font-bold text-gray-200 mt-1">${home.id}: <span class="text-blue-400">${homeWinProb}%</span> | ${away.id}: <span class="text-purple-400">${awayWinProb}%</span></p>
+        </div>
+      `;
+
+      // PROPS AJUSTADOS CONTRA DEFENSA RIVAL (POR PARTIDO)
+      // Ajuste de yardas aéreas y terrestres según lo concedido por el rival
+      const homePassYdsProj = Math.round((home.qbYds / 2) * (away.ypc / 380));
+      const awayPassYdsProj = Math.round((away.qbYds / 2) * (home.ypc / 380));
+      const homeRushYdsProj = Math.round((home.rbYds / 2) * (away.ytc / 250));
+      const awayRushYdsProj = Math.round((away.rbYds / 2) * (home.ytc / 250));
+
+      document.getElementById('propsResults').innerHTML = `
+        <!-- Local Props -->
+        <div class="bg-slate-900/90 p-4 rounded-xl border border-blue-500/30">
+          <h4 class="font-bold text-sm text-blue-400 mb-3 border-b border-gray-800 pb-2">🏠 Proyecciones Props ${home.name}</h4>
+          <div class="space-y-2 text-xs font-mono">
+            <p><span class="text-gray-400">Juego Aéreo Equipo:</span> <b class="text-white">${Math.round((home.yp/2)*(away.ypc/380))} Yardas</b></p>
+            <p><span class="text-gray-400">Juego Terrestre Equipo:</span> <b class="text-white">${Math.round((home.yt/2)*(away.ytc/250))} Yardas</b></p>
+            <div class="p-2 bg-slate-800/80 rounded mt-2">
+              <p class="text-blue-300 font-bold">🎯 QB ${home.qb}</p>
+              <p class="text-gray-300">Línea Proyectada: <b>${homePassYdsProj}.5 Yardas Pase</b></p>
+            </div>
+            <div class="p-2 bg-slate-800/80 rounded">
+              <p class="text-emerald-300 font-bold">🏃 RB ${home.rb}</p>
+              <p class="text-gray-300">Línea Proyectada: <b>${homeRushYdsProj}.5 Yardas Tierra</b></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visitante Props -->
+        <div class="bg-slate-900/90 p-4 rounded-xl border border-purple-500/30">
+          <h4 class="font-bold text-sm text-purple-400 mb-3 border-b border-gray-800 pb-2">✈️ Proyecciones Props ${away.name}</h4>
+          <div class="space-y-2 text-xs font-mono">
+            <p><span class="text-gray-400">Juego Aéreo Equipo:</span> <b class="text-white">${Math.round((away.yp/2)*(home.ypc/380))} Yardas</b></p>
+            <p><span class="text-gray-400">Juego Terrestre Equipo:</span> <b class="text-white">${Math.round((away.yt/2)*(home.ytc/250))} Yardas</b></p>
+            <div class="p-2 bg-slate-800/80 rounded mt-2">
+              <p class="text-purple-300 font-bold">🎯 QB ${away.qb}</p>
+              <p class="text-gray-300">Línea Proyectada: <b>${awayPassYdsProj}.5 Yardas Pase</b></p>
+            </div>
+            <div class="p-2 bg-slate-800/80 rounded">
+              <p class="text-emerald-300 font-bold">🏃 RB ${away.rb}</p>
+              <p class="text-gray-300">Línea Proyectada: <b>${awayRushYdsProj}.5 Yardas Tierra</b></p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPlayers() {
+      const qbs = [...nflData].sort((a,b) => b.qbYds - a.qbYds);
+      const rbs = [...nflData].sort((a,b) => b.rbYds - a.rbYds);
+
+      const qbBody = document.getElementById('qbBody');
+      const rbBody = document.getElementById('rbBody');
+
+      qbBody.innerHTML = '';
+      qbs.forEach(t => {
+        qbBody.innerHTML += `<tr><td class="p-2 font-bold text-white">${t.qb}</td><td class="p-2 text-gray-400">${t.id}</td><td class="p-2 text-center text-blue-300 font-bold">${t.qbYds}</td><td class="p-2 text-center text-gray-300">${t.qbTd}</td></tr>`;
+      });
+
+      rbBody.innerHTML = '';
+      rbs.forEach(t => {
+        rbBody.innerHTML += `<tr><td class="p-2 font-bold text-white">${t.rb}</td><td class="p-2 text-gray-400">${t.id}</td><td class="p-2 text-center text-emerald-300 font-bold">${t.rbYds}</td><td class="p-2 text-center text-gray-300">${t.rbTd}</td></tr>`;
+      });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
-      renderTable(nfl2026Data);
+      renderDashboard();
+      populateSelects();
+      calculateMatchup();
+      renderPlayers();
     });
   </script>
 </body>
